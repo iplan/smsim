@@ -27,15 +27,21 @@ Gem::Specification.new do |s|
     "VERSION",
     "lib/smsim.rb",
     "lib/smsim/core_ext/blank.rb",
-    "lib/smsim/error.rb",
+    "lib/smsim/delivery_notification.rb",
+    "lib/smsim/errors/delivery_notification_error.rb",
+    "lib/smsim/errors/error.rb",
+    "lib/smsim/errors/gateway_error.rb",
+    "lib/smsim/errors/http_response_error.rb",
+    "lib/smsim/errors/xml_response_error.rb",
     "lib/smsim/gateway.rb",
-    "lib/smsim/gateway_error.rb",
-    "lib/smsim/http_error.rb",
     "lib/smsim/http_executor.rb",
     "lib/smsim/xml_request_builder.rb",
-    "lib/smsim/xml_response.rb",
+    "lib/smsim/xml_response_parser.rb",
+    "smsim.gemspec",
+    "spec/smsim/delivery_notification_spec.rb",
     "spec/smsim/http_executor_spec.rb",
     "spec/smsim/xml_request_builder_spec.rb",
+    "spec/smsim/xml_response_parser_spec.rb",
     "spec/smsim_spec.rb",
     "spec/spec_helper.rb",
     "spec/support/smsim_gateway_macros.rb"
@@ -53,6 +59,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<httparty>, [">= 0"])
       s.add_runtime_dependency(%q<builder>, [">= 0"])
       s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
+      s.add_runtime_dependency(%q<uuidtools>, [">= 0"])
       s.add_development_dependency(%q<rspec>, ["= 2.7.0"])
       s.add_development_dependency(%q<webmock>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, ["~> 3.12"])
@@ -63,6 +70,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<httparty>, [">= 0"])
       s.add_dependency(%q<builder>, [">= 0"])
       s.add_dependency(%q<nokogiri>, [">= 0"])
+      s.add_dependency(%q<uuidtools>, [">= 0"])
       s.add_dependency(%q<rspec>, ["= 2.7.0"])
       s.add_dependency(%q<webmock>, [">= 0"])
       s.add_dependency(%q<rdoc>, ["~> 3.12"])
@@ -74,6 +82,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<httparty>, [">= 0"])
     s.add_dependency(%q<builder>, [">= 0"])
     s.add_dependency(%q<nokogiri>, [">= 0"])
+    s.add_dependency(%q<uuidtools>, [">= 0"])
     s.add_dependency(%q<rspec>, ["= 2.7.0"])
     s.add_dependency(%q<webmock>, [">= 0"])
     s.add_dependency(%q<rdoc>, ["~> 3.12"])

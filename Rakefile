@@ -17,10 +17,10 @@ Jeweler::Tasks.new do |gem|
   gem.name = "smsim"
   gem.homepage = "http://github.com/alextk/smsim"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Ruby api for sms service provider: Smsim}
+  gem.description = %Q{Ruby api for sms service provider: Smsim}
   gem.email = "tkachev.alex@gmail.com"
-  gem.authors = ["Alex"]
+  gem.authors = ["Alex Tkachev"]
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
