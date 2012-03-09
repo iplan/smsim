@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Smsim::DeliveryNotification do
 
   describe '#parse_from_http_params' do
-    let(:http_params){ {'Status' => '1', 'CustomerMessageId' => 'a1', 'SegmentsNumber' => '3', 'PhoneNumber' => '0545123456'} }
+    let(:http_params){ {'Status' => '1', 'CustomerMessageId' => 'a1', 'SegmentsNumber' => '3', 'PhoneNumber' => '0545123456', 'NotificationDate' => "09/03/2012 23:29:12"} }
     let(:notification){ Smsim::DeliveryNotification.parse_from_http_params(http_params) }
 
     it 'should raise DeliveryNotificationError if parameters are missing or not of required tye' do
@@ -26,6 +26,7 @@ describe Smsim::DeliveryNotification do
       notification.parts_count.should be_a(Integer)
       notification.parts_count.should == 3
       notification.completed_at.should be_present
+      notification.completed_at.strftime('%d/%m/%Y %H:%M:%S').should == "09/03/2012 23:29:12"
     end
 
     it 'should be delivered when status is 2' do

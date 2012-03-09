@@ -53,7 +53,7 @@ describe Smsim::XmlRequestBuilder do
       xml_doc.css('Inforu Settings DeliveryNotificationUrl').text.should be_blank
       
       xml_doc = Nokogiri::XML(Smsim::XmlRequestBuilder.build_send_sms(message, phone, options.update(:delivery_notification_url => 'http://google.com')))
-      xml_doc.css('Inforu Settings DeliveryNotificationUrl').text.should == 'http://google.com'
+      xml_doc.css('Inforu Settings DeliveryNotificationUrl').text.should == "http://google.com?gateway_user=#{options[:username]}"
     end
 
   end

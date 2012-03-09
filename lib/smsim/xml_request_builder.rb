@@ -11,6 +11,12 @@ module Smsim
       phones = phones.to_a unless phones.is_a?(Array)
       raise ArgumentError.new("Max phones number is 100") if phones.count > 100
 
+      # enhance it with gateway_user parameter
+      if options[:delivery_notification_url].present?
+        prefix = options[:delivery_notification_url].include?('?') ? '&' : '?'
+        options[:delivery_notification_url] << "#{prefix}gateway_user=#{options[:username]}"
+      end
+
       xml = Builder::XmlMarkup.new(:indent => 2)
       xml.instruct!
       xml.Inforu do |root|
