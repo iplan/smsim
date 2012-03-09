@@ -3,25 +3,35 @@ require 'uuidtools'
 module Smsim
 
   class Gateway
-    attr_reader :username
+    # Create new gateway with given +username+ and +password+
+    # +options+ hash can have the following keys:
+    #  * delivery_notification_url - url to which delivery notification will be sent
+    #  * reply_to_number - to which number sms receiver will reply
+    # These keys will be used when sending sms messages
+    def initialize(username, password, options = {})
+      @options = options
+      @options[:username] = username
+      @options[:password] = password
+      raise ArgumentError.new("Username must be present") if username.blank?
+      raise ArgumentError.new("Password must be present") if password.blank?
+    end
 
-    def initialize(username, password)
-      @username = username
-      @password = password
+    def username
+      @options[:username]
     end
 
     # send +text+ string to the phones specified in +phones+ array
-    # +options+ array can hav the following keys:
+    # +options+ hash can have the following keys:
     #  * delivery_notification_url - url to which delivery notification will be sent
     #  * reply_to_number - to which number sms receiver will reply
-    # @returns unique message id string. you must save this id if you want to receive delivery notifications via push/pull
+    # Returns unique message id string. Uou must save this id if you want to receive delivery notifications via push/pull
     def send(text, phones, options = {})
-      options = {:reply_to_number => "0545290862"}.update(options)
-      message_id = self.class.generate_message_id
-      xml = XmlRequestBuilder.build_send_sms(text, phones, options.update(:username => @username, :password => @password, :customer_message_id => message_id))
+      options = options.update(@options)
+      options[:customer_message_id] = self.class.generate_message_id
+      xml = XmlRequestBuilder.build_send_sms(text, phones, options)
       response = HttpExecutor.send_sms(xml)
       raise Smsim::Errors::GatewayError.new(response.status, "Sms send failed: #{response.description}") unless self.class.send_response_status_ok?(response.status)
-      message_id
+      options[:customer_message_id]
     end
 
     def self.generate_message_id
