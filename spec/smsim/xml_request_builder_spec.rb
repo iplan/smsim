@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Smsim::XmlRequestBuilder do
 
   describe '#build_send_sms' do
-    let(:options){ {:username => 'alex', :password => 'pass', :reply_to_number => '0501234567'} }
+    let(:options){ {:username => 'alex', :password => 'pass', :reply_to_number => '0501234567', :customer_message_id => '123'} }
     let(:message){ 'my message text' }
     let(:phone){ '0541234567' }
     let(:xml){ Smsim::XmlRequestBuilder.build_send_sms(message, phone, options) }
@@ -43,6 +43,17 @@ describe Smsim::XmlRequestBuilder do
 
     it 'should have sender number' do
       xml_doc.css('Inforu Settings SenderNumber').text.should == options[:reply_to_number]
+    end
+
+    it 'should have customer_message_id' do
+      xml_doc.css('Inforu Settings CustomerMessageId').text.should == options[:customer_message_id]
+    end
+
+    it 'should have delivery notification url if specified' do
+      xml_doc.css('Inforu Settings DeliveryNotificationUrl').text.should be_blank
+      
+      xml_doc = Nokogiri::XML(Smsim::XmlRequestBuilder.build_send_sms(message, phone, options.update(:delivery_notification_url => 'http://google.com')))
+      xml_doc.css('Inforu Settings DeliveryNotificationUrl').text.should == 'http://google.com'
     end
 
   end

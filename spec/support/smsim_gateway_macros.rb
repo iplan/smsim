@@ -1,4 +1,4 @@
-class SmsimGatewayMacros
+class XmlResponseStubs
 
   class << self
     def sms_send_response(code, description = '', number_of_recipients = 0)
