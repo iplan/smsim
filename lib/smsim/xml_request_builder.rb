@@ -7,7 +7,7 @@ module Smsim
       raise ArgumentError.new("Text must be at least 1 character long") if message_text.blank?
       raise ArgumentError.new("Phones must include at least one phone") if phones.blank?
       raise ArgumentError.new("Username and password must be present in options") if options[:username].blank? || options[:password].blank?
-      raise ArgumentError.new("Message id must be present in options") if options[:customer_message_id].blank?
+      raise ArgumentError.new("Message id must be present in options") if options[:message_id].blank?
       phones = phones.to_a unless phones.is_a?(Array)
       raise ArgumentError.new("Max phones number is 100") if phones.count > 100
 
@@ -32,7 +32,7 @@ module Smsim
         end
         root.Settings do |settings|
           settings.SenderNumber options[:reply_to_number]
-          settings.CustomerMessageId options[:customer_message_id]
+          settings.CustomerMessageId options[:message_id]
           settings.DeliveryNotificationUrl options[:delivery_notification_url] if options[:delivery_notification_url].present?
         end
       end

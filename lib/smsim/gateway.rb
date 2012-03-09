@@ -25,13 +25,13 @@ module Smsim
     #  * delivery_notification_url - url to which delivery notification will be sent
     #  * reply_to_number - to which number sms receiver will reply
     # Returns unique message id string. Uou must save this id if you want to receive delivery notifications via push/pull
-    def send(text, phones, options = {})
+    def send_sms(text, phones, options = {})
       options = options.update(@options)
-      options[:customer_message_id] = self.class.generate_message_id
+      options[:message_id] = self.class.generate_message_id
       xml = XmlRequestBuilder.build_send_sms(text, phones, options)
       response = HttpExecutor.send_sms(xml)
       raise Smsim::Errors::GatewayError.new(response.status, "Sms send failed: #{response.description}") unless self.class.send_response_status_ok?(response.status)
-      options[:customer_message_id]
+      options[:message_id]
     end
 
     def self.generate_message_id

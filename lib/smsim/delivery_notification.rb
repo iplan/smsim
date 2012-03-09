@@ -29,15 +29,15 @@ module Smsim
     end
 
     def delivered?
-      @status == 2
+      status == 2
     end
 
     def not_delivered?
-      @status == -2
+      status == -2
     end
 
     def blocked?
-      @status == -4
+      status == -4
     end
 
     # params will look something like the following:
