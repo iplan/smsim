@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alex Tkachev"]
-  s.date = "2012-03-09"
+  s.date = "2012-03-12"
   s.description = "Ruby api for sms service provider: Smsim"
   s.email = "tkachev.alex@gmail.com"
   s.extra_rdoc_files = [
@@ -39,6 +39,7 @@ Gem::Specification.new do |s|
     "lib/smsim/xml_response_parser.rb",
     "smsim.gemspec",
     "spec/smsim/delivery_notification_spec.rb",
+    "spec/smsim/gateway_spec.rb",
     "spec/smsim/http_executor_spec.rb",
     "spec/smsim/xml_request_builder_spec.rb",
     "spec/smsim/xml_response_parser_spec.rb",
