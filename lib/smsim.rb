@@ -1,4 +1,4 @@
-%w{gateway  http_executor  xml_request_builder  xml_response_parser  delivery_notification}.each do |file_name|
+%w{gateway_urls  gateway  http_executor  xml_request_builder  xml_response_parser  delivery_notification  delivery_notifications_parser}.each do |file_name|
   require File.join(File.dirname(__FILE__), 'smsim', file_name)
 end
 

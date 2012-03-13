@@ -1,0 +1,24 @@
+<PullClientNotificationResponse xmlns="http://tempuri.org/">
+  <PullClientNotificationResult>
+    <ClientNotification>
+      <Status>BadUserNameOrPassword</Status>
+      <BatchSize>0</BatchSize>
+      <Messages>
+        <Message>
+          <Type>Notification</Type>
+          <PhoneNumber>0527718999</PhoneNumber>
+          <Network>052</Network>
+          <Status>2</Status>
+          <StatusDescription>Delivered</StatusDescription>
+          <CustomerMessageId>1</CustomerMessageId>
+          <CustomerParam>2</CustomerParam>
+          <SenderNumber>0545290862</SenderNumber>
+          <SegmentsNumber>1</SegmentsNumber>
+          <NotificationDate>13/03/2012 10:16:56</NotificationDate>
+          <SentMessage>test</SentMessage>
+        </Message>
+      </Messages>
+    </ClientNotification>
+  </PullClientNotificationResult>
+</PullClientNotificationResponse>
+

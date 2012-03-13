@@ -3,6 +3,7 @@ require 'uuidtools'
 module Smsim
 
   class Gateway
+    extend GatewayUrls
     # Create new gateway with given +username+ and +password+
     # +options+ hash can have the following keys:
     #  * delivery_notification_url - url to which delivery notification will be sent

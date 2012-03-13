@@ -1,4 +1,3 @@
-require 'ostruct'
 require 'httparty'
 
 module Smsim
@@ -6,13 +5,8 @@ module Smsim
   class HttpExecutor
     include ::HTTParty
 
-    @@urls = OpenStruct.new({
-      :send_sms => "http://api.smsim.co.il/SendMessageXml.ashx"
-    })
-    def self.urls; @@urls; end
-
     def self.send_sms(xml)
-      response = self.post(@@urls.send_sms, :body => {:InforuXML => xml})
+      response = self.post(Smsim::Gateway.urls.send_sms, :body => {:InforuXML => xml})
       verify_response_code(response) # error will be raised if response code is bad
       XmlResponseParser.parse_sms_send_response(response)
     end

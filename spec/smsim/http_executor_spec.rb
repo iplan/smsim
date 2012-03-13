@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Smsim::HttpExecutor do
-  let(:request_uri){ Smsim::HttpExecutor.urls.send_sms }
+  let(:request_uri){ Smsim::Gateway.urls.send_sms }
 
   describe '#verify_response_code' do
     let(:executor){ Smsim::HttpExecutor }

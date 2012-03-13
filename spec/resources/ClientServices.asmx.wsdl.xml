@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="PullClientNotification">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="batchSize" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PullClientNotificationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="PullClientNotificationResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteFutureMessage">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="phoneNumber" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="customerMessageId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="customerParam" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteFutureMessageResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteFutureMessageResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="PullClientNotificationSoapIn">
+    <wsdl:part name="parameters" element="tns:PullClientNotification" />
+  </wsdl:message>
+  <wsdl:message name="PullClientNotificationSoapOut">
+    <wsdl:part name="parameters" element="tns:PullClientNotificationResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFutureMessageSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteFutureMessage" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFutureMessageSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteFutureMessageResponse" />
+  </wsdl:message>
+  <wsdl:portType name="ClientServicesSoap">
+    <wsdl:operation name="PullClientNotification">
+      <wsdl:input message="tns:PullClientNotificationSoapIn" />
+      <wsdl:output message="tns:PullClientNotificationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFutureMessage">
+      <wsdl:input message="tns:DeleteFutureMessageSoapIn" />
+      <wsdl:output message="tns:DeleteFutureMessageSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ClientServicesSoap" type="tns:ClientServicesSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="PullClientNotification">
+      <soap:operation soapAction="http://tempuri.org/PullClientNotification" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFutureMessage">
+      <soap:operation soapAction="http://tempuri.org/DeleteFutureMessage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ClientServicesSoap12" type="tns:ClientServicesSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="PullClientNotification">
+      <soap12:operation soapAction="http://tempuri.org/PullClientNotification" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFutureMessage">
+      <soap12:operation soapAction="http://tempuri.org/DeleteFutureMessage" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ClientServices">
+    <wsdl:port name="ClientServicesSoap" binding="tns:ClientServicesSoap">
+      <soap:address location="http://api.inforu.co.il/ClientServices.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ClientServicesSoap12" binding="tns:ClientServicesSoap12">
+      <soap12:address location="http://api.inforu.co.il/ClientServices.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

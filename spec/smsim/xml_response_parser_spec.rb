@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Smsim::XmlResponseParser do
 
   describe '#parse_sms_send_response' do
-    let(:request_uri){ Smsim::HttpExecutor.urls.send_sms }
+    let(:request_uri){ Smsim::Gateway.urls.send_sms }
     
     it 'should raise XmlResponseError when response Status is not an integer' do
       XmlResponseStubs.stub_request_with_sms_send_response(self, :status => "asdf")

@@ -2,6 +2,7 @@ source "http://rubygems.org"
 
 gem 'httparty'
 gem 'builder'
+gem 'savon'
 gem 'nokogiri'
 gem 'uuidtools'
 
