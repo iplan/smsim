@@ -52,6 +52,15 @@ class XmlResponseStubs
       example.stub_request(:get, Smsim::Gateway.urls.delivery_report_pull).to_return(:status => http_code, :body => FileMacros.load_xml_file('ClientServices.asmx.wsdl.xml'))
       example.stub_request(:post, Smsim::Gateway.urls.delivery_report_pull.gsub('?WSDL', '')).to_return(:status => http_code, :body => XmlResponseStubs.delivery_report_pull_response(options))
     end
+
+    def sms_reply_http_xml_string(values_hash = {})
+      doc = ::Nokogiri::XML(FileMacros.load_xml_file('SmsReplyPush.xml'))
+      root = doc.at_css('IncomingData')
+      values_hash.each do |key, value|
+        root.at_css(key.to_s.camelcase).content = value
+      end
+      root.to_s
+    end
   end
 
 end

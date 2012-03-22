@@ -56,7 +56,7 @@ module Smsim
       xml = response.doc
       xml.remove_namespaces!
 
-      # temporary convert hash, remove when new version is uploaded
+      # temporary convert hash, remove when new version is uploaded (talk to Zorik about it)
       mapper_status_text_to_integer = {'OK' => 1, 'Failed' => -1, 'BadUserNameOrPassword' => -2, 'UserNameNotExists' => -3, 'PasswordNotExists' => -4}
       response_status = xml.at_css('Status').text
       raise Smsim::Errors::DeliveryNotificationError.new(100, "Response status '#{response_status}' is neither of #{mapper_status_text_to_integer.keys}") unless mapper_status_text_to_integer.keys.include?(response_status)
