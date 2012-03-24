@@ -3,7 +3,8 @@ require 'uuidtools'
 module Smsim
 
   class Gateway
-    extend GatewayUrls
+    attr_reader :username, :options
+
     # Create new gateway with given +username+ and +password+
     # +options+ hash can have the following keys:
     #  * delivery_notification_url - url to which delivery notification will be sent
@@ -11,14 +12,13 @@ module Smsim
     # These keys will be used when sending sms messages
     def initialize(username, password, options = {})
       @options = options
-      @options[:username] = username
-      @options[:password] = password
-      raise ArgumentError.new("Username must be present") if username.blank?
-      raise ArgumentError.new("Password must be present") if password.blank?
-    end
+      @urls = Smsim.config.urls.merge(@options.delete(:urls) || {})
+      @username = username
+      @password = password
+      raise ArgumentError.new("Username and password must be present") if @username.blank? || @password.blank?
 
-    def username
-      @options[:username]
+      @sms_sender = Sender.new(options.merge(:username => username, :password => password, :http_post_url => @urls[:send_sms]))
+      @report_puller = ReportPuller.new(options.merge(:username => username, :password => password, :wsdl_url => @urls[:delivery_notifications_and_sms_replies_report_pull]))
     end
 
     # send +text+ string to the phones specified in +phones+ array
@@ -26,21 +26,16 @@ module Smsim
     #  * delivery_notification_url - url to which delivery notification will be sent
     #  * reply_to_number - to which number sms receiver will reply
     # Returns unique message id string. Uou must save this id if you want to receive delivery notifications via push/pull
-    def send_sms(text, phones, options = {})
-      options = options.update(@options)
-      options[:message_id] = self.class.generate_message_id
-      xml = XmlRequestBuilder.build_send_sms(text, phones, options)
-      response = HttpExecutor.send_sms(xml)
-      raise Smsim::Errors::GatewayError.new(response.status, "Sms send failed: #{response.description}") unless self.class.send_response_status_ok?(response.status)
-      options[:message_id]
+    def send_sms(text, phones)
+      @sms_sender.send_sms(text, phones)
     end
 
-    def self.generate_message_id
-      UUIDTools::UUID.timestamp_create.to_str
+    def on_delivery_notification_http_push(params)
+      Smsim::DeliveryNotificationsParser.http_push(params)
     end
 
-    def self.send_response_status_ok?(status)
-      status == 1
+    def pull_notification_deliveries_and_sms_replies_report(batch_size = 100)
+      @report_puller.pull_delivery_notifications_and_sms_replies(batch_size)
     end
 
   end

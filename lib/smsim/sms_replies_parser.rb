@@ -1,4 +1,3 @@
-require "savon"
 require 'nokogiri'
 
 module Smsim
@@ -21,24 +20,33 @@ module Smsim
     # ShortCode - number to which reply was sent (0529992090)
     def self.http_push(params)
       ['IncomingXML'].each do |p|
-        raise Smsim::Errors::SmsReplyError.new(-1, "Missing http parameter #{p}. Parameters were: #{params.inspect}") if params[p].blank?
+        raise Smsim::Errors::GatewayError.new(601, "Missing http parameter #{p}. Parameters were: #{params.inspect}") if params[p].blank?
       end
 
       begin
         doc = ::Nokogiri::XML(params['IncomingXML'])
-        values = {
+        parse_reply_values_hash(
           :phone => doc.at_css('IncomingData PhoneNumber').text,
           :text => doc.at_css('IncomingData Message').text,
-          :replied_to => doc.at_css('IncomingData ShortCode').text,
-          :received_at => Time.now
-        }
+          :replied_to => doc.at_css('IncomingData ShortCode').text
+        )
       rescue Exception => e
-        raise Smsim::Errors::SmsReplyError.new(100, e.message)
+        raise Smsim::Errors::GatewayError.new(602, e.message)
       end
-
-      SmsReply.new(values)
     end
 
+    def self.parse_reply_values_hash(values)
+      if values[:received_at].is_a?(String)
+        begin
+          values[:received_at] = DateTime.strptime(values[:received_at], '%d/%m/%Y %H:%M:%S')
+        rescue Exception => e
+          raise Smsim::Errors::GatewayError.new(603, "NotificationDate could not be converted to date. NotificationDate was: #{values[:received_at]}")
+        end
+      else
+        values[:received_at] = Time.now
+      end
+      OpenStruct.new(values)
+    end
 
   end
 end
