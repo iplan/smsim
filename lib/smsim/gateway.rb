@@ -22,10 +22,10 @@ module Smsim
     end
 
     # send +text+ string to the phones specified in +phones+ array
-    # +options+ hash can have the following keys:
-    #  * delivery_notification_url - url to which delivery notification will be sent
-    #  * reply_to_number - to which number sms receiver will reply
-    # Returns unique message id string. Uou must save this id if you want to receive delivery notifications via push/pull
+    # Returns response OpenStruct that contains:
+    #  * +message_id+ - message id string. You must save this id if you want to receive delivery notifications via push/pull
+    #  * +status+ - gateway status of sms send
+    #  * +number_of_recipients+ - number of recipients the message was sent to
     def send_sms(text, phones)
       @sms_sender.send_sms(text, phones)
     end

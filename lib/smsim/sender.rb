@@ -6,6 +6,12 @@ module Smsim
   class Sender
     include ::HTTParty
 
+    # Create new sms sender with given +options+ with the following keys:
+    #  * +username+ - gateway username
+    #  * +password+ - gateway password
+    #  * +delivery_notification_url+ - url to which delivery notification will be sent
+    #  * +reply_to_number+ - to which number sms receiver will reply
+    # These keys will be used when sending sms messages
     def initialize(options)
       raise ArgumentError.new("HTTP post url is missing") if options[:http_post_url].blank?
       raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
@@ -22,7 +28,8 @@ module Smsim
       xml = build_send_sms_xml(message_text, phones, message_id)
       response = self.class.post(@options[:http_post_url], :body => {:InforuXML => xml})
       verify_http_response_code(response) # error will be raised if response code is bad
-      response = parse_response_xml(response, message_id)
+      response = parse_response_xml(response)
+      response.message_id = message_id
       if response.status != 1
         raise Smsim::Errors::GatewayError.new(Smsim::Errors::GatewayError.map_send_sms_xml_response_status(response.status), "Sms send failed (status #{response.status}): #{response.description}")
       end
@@ -75,7 +82,7 @@ module Smsim
       end
     end
 
-    def parse_response_xml(httparty_response, message_id)
+    def parse_response_xml(httparty_response)
       xml = httparty_response.parsed_response
       begin
         doc = ::Nokogiri::XML(xml)
@@ -83,7 +90,6 @@ module Smsim
           :status => Integer(doc.at_css('Result Status').text),
           :number_of_recipients => Integer(doc.at_css('Result NumberOfRecipients').text),
           :description => doc.at_css('Result Description').text,
-          :message_id => message_id
         })
       rescue Exception => e
         raise Smsim::Errors::GatewayError.new(250, e.message)
