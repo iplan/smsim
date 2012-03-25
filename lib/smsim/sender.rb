@@ -1,10 +1,12 @@
 require 'httparty'
+require 'logging'
 
 module Smsim
 
   # this class sends smses and parses repsones
   class Sender
     include ::HTTParty
+    attr_reader :logger
 
     # Create new sms sender with given +options+ with the following keys:
     #  * +username+ - gateway username
@@ -16,6 +18,7 @@ module Smsim
       raise ArgumentError.new("HTTP post url is missing") if options[:http_post_url].blank?
       raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
       @options = options
+      @logger = Logging.logger[self]
     end
 
     def send_sms(message_text, phones)
@@ -26,10 +29,13 @@ module Smsim
 
       message_id = generate_message_id
       xml = build_send_sms_xml(message_text, phones, message_id)
+      logger.debug "#send_sms - xml - \n #{xml}"
       response = self.class.post(@options[:http_post_url], :body => {:InforuXML => xml})
+      logger.debug "#send_sms - got http response: code=#{response.code}; body=\n#{response.parsed_response}"
       verify_http_response_code(response) # error will be raised if response code is bad
       response = parse_response_xml(response)
       response.message_id = message_id
+      logger.debug "#send_sms - parsed response: #{response.inspect}"
       if response.status != 1
         raise Smsim::Errors::GatewayError.new(Smsim::Errors::GatewayError.map_send_sms_xml_response_status(response.status), "Sms send failed (status #{response.status}): #{response.description}")
       end

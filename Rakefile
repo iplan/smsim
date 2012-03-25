@@ -21,6 +21,8 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{Ruby api for sms service provider: Smsim}
   gem.email = "tkachev.alex@gmail.com"
   gem.authors = ["Alex Tkachev"]
+
+  gem.files.exclude 'api_docs/**/*'
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new

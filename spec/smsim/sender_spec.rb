@@ -65,8 +65,8 @@ describe Smsim::Sender do
     end
 
     it 'should have delivery notification url if specified' do
-      options.update(:delivery_notification_url => 'http://google.com')
-      xml_doc.at_css('Inforu Settings DeliveryNotificationUrl').text.should == "http://google.com"
+      options.update(:delivery_notification_url => 'http://google.com?auth=1234&alex=king')
+      xml_doc.at_css('Inforu Settings DeliveryNotificationUrl').text.should == "http://google.com?auth=1234&alex=king"
     end
 
     it 'should not have delivery notification url if not specified' do

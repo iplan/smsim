@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alex Tkachev"]
-  s.date = "2012-03-12"
+  s.date = "2012-03-25"
   s.description = "Ruby api for sms service provider: Smsim"
   s.email = "tkachev.alex@gmail.com"
   s.extra_rdoc_files = [
@@ -26,25 +26,29 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "lib/smsim.rb",
+    "lib/smsim/config.rb",
     "lib/smsim/core_ext/blank.rb",
-    "lib/smsim/delivery_notification.rb",
-    "lib/smsim/errors/delivery_notification_error.rb",
-    "lib/smsim/errors/error.rb",
+    "lib/smsim/delivery_notifications_parser.rb",
     "lib/smsim/errors/gateway_error.rb",
-    "lib/smsim/errors/http_response_error.rb",
-    "lib/smsim/errors/xml_response_error.rb",
     "lib/smsim/gateway.rb",
-    "lib/smsim/http_executor.rb",
-    "lib/smsim/xml_request_builder.rb",
-    "lib/smsim/xml_response_parser.rb",
+    "lib/smsim/report_puller.rb",
+    "lib/smsim/sender.rb",
+    "lib/smsim/sms_replies_parser.rb",
+    "lib/smsim/sms_reply.rb",
     "smsim.gemspec",
-    "spec/smsim/delivery_notification_spec.rb",
+    "spec/resources/ClientServices.asmx.wsdl.xml",
+    "spec/resources/EnvelopeResponse.soap.xml",
+    "spec/resources/PullClientNotificationResponse.soap.xml",
+    "spec/resources/SmsReplyPush.xml",
+    "spec/resources/SmsSendResponse.xml",
+    "spec/smsim/delivery_notifications_parser_spec.rb",
     "spec/smsim/gateway_spec.rb",
-    "spec/smsim/http_executor_spec.rb",
-    "spec/smsim/xml_request_builder_spec.rb",
-    "spec/smsim/xml_response_parser_spec.rb",
+    "spec/smsim/report_puller_spec.rb",
+    "spec/smsim/sender_spec.rb",
+    "spec/smsim/sms_replies_parser_spec.rb",
     "spec/smsim_spec.rb",
     "spec/spec_helper.rb",
+    "spec/support/file_macros.rb",
     "spec/support/smsim_gateway_macros.rb"
   ]
   s.homepage = "http://github.com/alextk/smsim"
@@ -59,8 +63,10 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<httparty>, [">= 0"])
       s.add_runtime_dependency(%q<builder>, [">= 0"])
+      s.add_runtime_dependency(%q<savon>, [">= 0"])
       s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
       s.add_runtime_dependency(%q<uuidtools>, [">= 0"])
+      s.add_runtime_dependency(%q<logging>, [">= 0"])
       s.add_development_dependency(%q<rspec>, ["= 2.7.0"])
       s.add_development_dependency(%q<webmock>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, ["~> 3.12"])
@@ -70,8 +76,10 @@ Gem::Specification.new do |s|
     else
       s.add_dependency(%q<httparty>, [">= 0"])
       s.add_dependency(%q<builder>, [">= 0"])
+      s.add_dependency(%q<savon>, [">= 0"])
       s.add_dependency(%q<nokogiri>, [">= 0"])
       s.add_dependency(%q<uuidtools>, [">= 0"])
+      s.add_dependency(%q<logging>, [">= 0"])
       s.add_dependency(%q<rspec>, ["= 2.7.0"])
       s.add_dependency(%q<webmock>, [">= 0"])
       s.add_dependency(%q<rdoc>, ["~> 3.12"])
@@ -82,8 +90,10 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<httparty>, [">= 0"])
     s.add_dependency(%q<builder>, [">= 0"])
+    s.add_dependency(%q<savon>, [">= 0"])
     s.add_dependency(%q<nokogiri>, [">= 0"])
     s.add_dependency(%q<uuidtools>, [">= 0"])
+    s.add_dependency(%q<logging>, [">= 0"])
     s.add_dependency(%q<rspec>, ["= 2.7.0"])
     s.add_dependency(%q<webmock>, [">= 0"])
     s.add_dependency(%q<rdoc>, ["~> 3.12"])
