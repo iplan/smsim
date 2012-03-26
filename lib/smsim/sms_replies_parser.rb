@@ -43,6 +43,7 @@ module Smsim
     # * +text+ - contents of the message that were received
     # * +reply_to_phone+ - the phone to sms which reply was sent (gateway phone number)
     # * +received_at+ - when the sms was received (as reported by gateway server)
+    # * +message_id+ - uniq message id generated from phone,reply_to_phone and received_at timestamp
     def self.parse_reply_values_hash(values)
       [:phone, :text, :reply_to_phone].each do |key|
         raise Smsim::Errors::GatewayError.new(601, "Missing sms reply values key #{key}. Values were: #{values.inspect}") if values[key].blank?
@@ -57,7 +58,15 @@ module Smsim
       else
         values[:received_at] = Time.now
       end
+      values[:message_id] = generate_reply_message_id(values[:phone], values[:reply_to_phone], values[:received_at])
       OpenStruct.new(values)
+    end
+
+    def self.generate_reply_message_id(from_phone, reply_to_phone, received_at)
+      p1 = from_phone.to_i(36).to_s(36)
+      p2 = reply_to_phone.to_i(36).to_s(36)
+      p3 = received_at.to_i.to_s(36)
+      "#{p1}-#{p2}-#{p3}"
     end
 
   end

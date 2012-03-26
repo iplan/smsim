@@ -6,6 +6,8 @@ gem 'savon'
 gem 'nokogiri'
 gem 'uuidtools'
 gem 'logging'
+gem 'activesupport'
+gem 'i18n'
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.

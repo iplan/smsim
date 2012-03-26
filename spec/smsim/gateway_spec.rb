@@ -22,7 +22,7 @@ describe Smsim::Gateway do
     end
 
     it 'should return generated message info with message_id when send succeeds' do
-      result = g.send_sms('alex is king', '054123456')
+      result = g.send_sms('alex is king', '972541234567')
       result.should be_present
       result.message_id.should be_present
       result.message_id.length.should > 10

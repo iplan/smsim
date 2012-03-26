@@ -17,15 +17,21 @@ module Smsim
     def initialize(options)
       raise ArgumentError.new("HTTP post url is missing") if options[:http_post_url].blank?
       raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
+      raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
+      raise ArgumentError.new("Reply to number must be cellular phone with 972 country code") if options[:reply_to_number].present? && !CellularPhoneFormatValidator.valid?(options[:reply_to_number])
       @options = options
       @logger = Logging.logger[self]
     end
 
     def send_sms(message_text, phones)
       raise ArgumentError.new("Text must be at least 1 character long") if message_text.blank?
-      raise ArgumentError.new("Phones must include at least one phone") if phones.blank?
-      phones = phones.to_a unless phones.is_a?(Array)
-      raise ArgumentError.new("Max phones number is 100") if phones.count > 100
+      raise ArgumentError.new("No phones were given") if phones.blank?
+      phones = [phones] unless phones.is_a?(Array)
+      # check that phones are in valid cellular format
+      for p in phones
+        raise ArgumentError.new("Phone number '#{p}' must be cellular phone with 972 country code") unless CellularPhoneFormatValidator.valid?(p)
+      end
+      #raise ArgumentError.new("Max phones number is 100") if phones.count > 100
 
       message_id = generate_message_id
       xml = build_send_sms_xml(message_text, phones, message_id)

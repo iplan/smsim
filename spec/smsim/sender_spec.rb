@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Smsim::Sender do
-  let(:options){ {:username => 'alex', :password => 'pass', :http_post_url => Smsim.config.urls[:send_sms], :reply_to_number => '0501234567'} }
+  let(:options){ {:username => 'alex', :password => 'pass', :http_post_url => Smsim.config.urls[:send_sms], :reply_to_number => '972501234567'} }
   let(:sender){ Smsim::Sender.new(options) }
 
   context 'when creating' do
@@ -91,19 +91,20 @@ describe Smsim::Sender do
   end
 
   describe '#parse_response_xml' do
+    let(:phone){ '972541234567' }
     it 'should raise XmlResponseError when response Status is not an integer' do
       XmlResponseStubs.stub_request_with_sms_send_response(self, :status => "asdf")
-      lambda{ sender.send_sms('message', '0541234567') }.should raise_error(Smsim::Errors::GatewayError)
+      lambda{ sender.send_sms('message', phone) }.should raise_error(Smsim::Errors::GatewayError)
     end
 
     it 'should raise XmlResponseError when response NumberOfRecipients is not an integer' do
       XmlResponseStubs.stub_request_with_sms_send_response(self, :status => '1', :description => "received ok", :number_of_recipients => 'df')
-      lambda{ sender.send_sms('message', '0541234567') }.should raise_error(Smsim::Errors::GatewayError)
+      lambda{ sender.send_sms('message', phone) }.should raise_error(Smsim::Errors::GatewayError)
     end
 
     it 'should return XmlResponse with status, message_id, description and number of recipients initialized' do
       XmlResponseStubs.stub_request_with_sms_send_response(self, :status => '1', :description => "received ok", :number_of_recipients => '2')
-      response = sender.send_sms('message', '0541234567')
+      response = sender.send_sms('message', phone)
       response.status.should == 1
       response.message_id.should be_present
       response.description.should == "received ok"
