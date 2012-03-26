@@ -46,6 +46,10 @@ class XmlResponseStubs
           doc.at_css('Messages').add_child(node)
         end
       end
+
+      response_content = doc.at_css('ClientNotification').remove
+      doc.at_css('PullClientNotificationResult').content = response_content.to_s
+
       wrap_in_soap_envelope_response(doc.root)
     end
 

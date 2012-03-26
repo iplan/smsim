@@ -22,13 +22,15 @@ module Smsim
     def pull_delivery_notifications_and_sms_replies(batch_size = 100)
       service = Savon::Client.new(@options[:wsdl_url])
       soap_body = {'userName' => @options[:username], 'password' => @options[:password], 'batchSize' => batch_size}
-      response = service.request('PullClientNotification'){ soap.body = soap_body }
+      response = service.request(:pull_client_notification){ soap.body = soap_body }
 
       #<ClientNotification><Status>OK</Status><BatchSize>1</BatchSize><Messages><Message><Type>Notification</Type><PhoneNumber>0527718999</PhoneNumber><Network>052</Network><Status>2</Status><StatusDescription>Delivered</StatusDescription><CustomerMessageId></CustomerMessageId><CustomerParam></CustomerParam><SenderNumber>0545290862</SenderNumber><SegmentsNumber>1</SegmentsNumber><NotificationDate>13/03/2012 10:16:56</NotificationDate><SentMessage>test</SentMessage></Message></Messages></ClientNotification>
       #<ClientNotification><Status>OK</Status><BatchSize>0</BatchSize></ClientNotification>
-      xml = response.doc
-      xml.remove_namespaces!
+      soap_xml = response.doc
+      soap_xml.remove_namespaces!
 
+      xml = ::Nokogiri::XML(soap_xml.at_css('PullClientNotificationResult').text)
+      
       # temporary convert hash, remove when new version is uploaded (talk to Zorik about it)
       mapper_status_text_to_integer = {'OK' => 1, 'Failed' => -1, 'BadUserNameOrPassword' => -2, 'UserNameNotExists' => -3, 'PasswordNotExists' => -4}
       response_status = xml.at_css('Status').text
