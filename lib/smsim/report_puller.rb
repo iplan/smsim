@@ -60,6 +60,7 @@ module Smsim
                 :parts_count => msg.at_css('SegmentsNumber').text,
                 :message_id => msg.at_css('CustomerMessageId').text,
                 :phone => msg.at_css('PhoneNumber').text,
+                :reply_to_phone => msg.at_css('SenderNumber').text,
                 :reason_not_delivered => msg.at_css('StatusDescription').text,
                 :completed_at => msg.at_css('NotificationDate').text
               )
@@ -67,7 +68,7 @@ module Smsim
               response.replies << Smsim::SmsRepliesParser.parse_reply_values_hash(
                 :phone => msg.at_css('PhoneNumber').text,
                 :text => msg.at_css('SentMessage').text,
-                :replied_to => msg.at_css('SenderNumber').text,
+                :reply_to_phone => msg.at_css('SenderNumber').text,
                 :received_at => msg.at_css('NotificationDate').text
               )
             else

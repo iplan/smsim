@@ -20,6 +20,7 @@ module Smsim
         :message_id => params['CustomerMessageId'],
         :parts_count => params['SegmentsNumber'],
         :completed_at => params['NotificationDate'],
+        :reply_to_phone => params['SenderNumber'],
         :reason_not_delivered => params['StatusDescription'],
       }
 
@@ -35,6 +36,7 @@ module Smsim
     # * +parts_count+ - how many parts the sms was
     # * +completed_at+ - when the sms was delivered (as reported by network operator)
     # * +phone+ - the phone to which sms was sent
+    # * +reply_to_phone+ - the phone to sms reply will be sent when receiver replies to message
     # * +message_id+ - gateway message id of the sms that was sent
     def self.parse_notification_values_hash(values)
       [:gateway_status, :phone, :message_id, :parts_count, :completed_at].each do |key|

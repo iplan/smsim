@@ -28,14 +28,26 @@ module Smsim
         parse_reply_values_hash(
           :phone => doc.at_css('IncomingData PhoneNumber').text,
           :text => doc.at_css('IncomingData Message').text,
-          :replied_to => doc.at_css('IncomingData ShortCode').text
+          :reply_to_phone => doc.at_css('IncomingData ShortCode').text
         )
       rescue Exception => e
         raise Smsim::Errors::GatewayError.new(602, e.message)
       end
     end
 
+    # This method receives sms reply +values+ Hash and tries to type cast it's values
+    # @raises Smsim::Errors::GatewayError when values hash is missing attributes or when one of attributes fails to be type casted
+    #
+    # Method returns object with the following attributes:
+    # * +phone+ - the phone that sent the sms (from which sms reply was received)
+    # * +text+ - contents of the message that were received
+    # * +reply_to_phone+ - the phone to sms which reply was sent (gateway phone number)
+    # * +received_at+ - when the sms was received (as reported by gateway server)
     def self.parse_reply_values_hash(values)
+      [:phone, :text, :reply_to_phone].each do |key|
+        raise Smsim::Errors::GatewayError.new(601, "Missing sms reply values key #{key}. Values were: #{values.inspect}") if values[key].blank?
+      end
+
       if values[:received_at].is_a?(String)
         begin
           values[:received_at] = DateTime.strptime(values[:received_at], '%d/%m/%Y %H:%M:%S')
