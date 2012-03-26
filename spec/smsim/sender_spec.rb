@@ -14,6 +14,11 @@ describe Smsim::Sender do
       lambda{ Smsim::Sender.new(options.update(:password => nil)) }.should raise_error(ArgumentError)
     end
 
+    it 'should raise error if reply_to_phone is not valid cellular phone' do
+      lambda{ Smsim::Sender.new(options.update(:reply_to_number => '1234')) }.should raise_error(ArgumentError)
+      lambda{ Smsim::Sender.new(options.update(:reply_to_number => '0545290862')) }.should raise_error(ArgumentError)
+    end
+
     it 'should create when all arguments present' do
       sender.should be_present
     end
@@ -21,7 +26,7 @@ describe Smsim::Sender do
 
   describe '#send_sms' do
     let(:message){ 'my message text' }
-    let(:phone){ '0541234567' }
+    let(:phone){ '972541234567' }
 
     it 'should raise error if text is blank' do
       lambda{ sender.send_sms('', phone) }.should raise_error(ArgumentError)
@@ -29,6 +34,11 @@ describe Smsim::Sender do
 
     it 'should raise error if phone is blank' do
       lambda{ sender.send_sms(message, '') }.should raise_error(ArgumentError)
+    end
+
+    it 'should raise error if phone is not valid cellular phone' do
+      lambda{ sender.send_sms(message, '0541234567') }.should raise_error(ArgumentError)
+      lambda{ sender.send_sms(message, '541234567') }.should raise_error(ArgumentError)
     end
 
   end

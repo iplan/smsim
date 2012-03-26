@@ -49,6 +49,9 @@ module Smsim
         raise Smsim::Errors::GatewayError.new(601, "Missing sms reply values key #{key}. Values were: #{values.inspect}") if values[key].blank?
       end
 
+      values[:phone] = PhoneNumberUtils.ensure_country_code(values[:phone])
+      values[:reply_to_phone] = PhoneNumberUtils.ensure_country_code(values[:reply_to_phone])
+
       if values[:received_at].is_a?(String)
         begin
           values[:received_at] = DateTime.strptime(values[:received_at], '%d/%m/%Y %H:%M:%S')

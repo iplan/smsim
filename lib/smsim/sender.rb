@@ -18,7 +18,7 @@ module Smsim
       raise ArgumentError.new("HTTP post url is missing") if options[:http_post_url].blank?
       raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
       raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
-      raise ArgumentError.new("Reply to number must be cellular phone with 972 country code") if options[:reply_to_number].present? && !CellularPhoneFormatValidator.valid?(options[:reply_to_number])
+      raise ArgumentError.new("Reply to number must be cellular phone with 972 country code") if options[:reply_to_number].present? && !PhoneNumberUtils.valid_cellular_phone?(options[:reply_to_number])
       @options = options
       @logger = Logging.logger[self]
     end
@@ -29,7 +29,7 @@ module Smsim
       phones = [phones] unless phones.is_a?(Array)
       # check that phones are in valid cellular format
       for p in phones
-        raise ArgumentError.new("Phone number '#{p}' must be cellular phone with 972 country code") unless CellularPhoneFormatValidator.valid?(p)
+        raise ArgumentError.new("Phone number '#{p}' must be cellular phone with 972 country code") unless PhoneNumberUtils.valid_cellular_phone?(p)
       end
       #raise ArgumentError.new("Max phones number is 100") if phones.count > 100
 

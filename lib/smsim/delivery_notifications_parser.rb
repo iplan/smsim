@@ -43,6 +43,9 @@ module Smsim
         raise Smsim::Errors::GatewayError.new(301, "Missing notification values key #{key}. Values were: #{values.inspect}") if values[key].blank?
       end
 
+      values[:phone] = PhoneNumberUtils.ensure_country_code(values[:phone])
+      values[:reply_to_phone] = PhoneNumberUtils.ensure_country_code(values[:reply_to_phone]) if values[:reply_to_phone].present?
+
       begin
         values[:gateway_status] = Integer(values[:gateway_status])
         values[:delivered?] = gateway_status_delivered?(values[:gateway_status])
