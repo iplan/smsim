@@ -11,12 +11,21 @@ module Smsim
       @options = options
     end
 
-    #<ClientNotification><Status>OK</Status><BatchSize>1</BatchSize><Messages><Message><Type>Notification</Type><PhoneNumber>0527718999</PhoneNumber><Network>052</Network><Status>2</Status><StatusDescription>Delivered</StatusDescription><CustomerMessageId></CustomerMessageId><CustomerParam></CustomerParam><SenderNumber>0545290862</SenderNumber><SegmentsNumber>1</SegmentsNumber><NotificationDate>13/03/2012 10:16:56</NotificationDate><SentMessage>test</SentMessage></Message></Messages></ClientNotification>
-    #<ClientNotification><Status>OK</Status><BatchSize>0</BatchSize></ClientNotification>
+    # This method will pull sms replies and delivery notifications report from smsim webservice.
+    # NOTE!!! Only new delivery notifications and sms replies will be pulled on each subsequent call (after each pull they empty their table)
+    #
+    # This method returns result object that contains the following attributes:
+    # * +status+ - report pull status (should be 1 if everything ok)
+    # * +batch_size+ - how many messages pulled (notifications and sms replies combined)
+    # * +notifications+ - array of notification delivery objects (see Smsim::DeliveryNotificationsParser#parse_notification_values_hash for object attributes)
+    # * +replies+ - array of sms replies objects (see Smsim::SmsRepliesParser.parse_reply_values_hash for object attributes)
     def pull_delivery_notifications_and_sms_replies(batch_size = 100)
       service = Savon::Client.new(@options[:wsdl_url])
       soap_body = {'userName' => @options[:username], 'password' => @options[:password], 'batchSize' => batch_size}
       response = service.request('PullClientNotification'){ soap.body = soap_body }
+
+      #<ClientNotification><Status>OK</Status><BatchSize>1</BatchSize><Messages><Message><Type>Notification</Type><PhoneNumber>0527718999</PhoneNumber><Network>052</Network><Status>2</Status><StatusDescription>Delivered</StatusDescription><CustomerMessageId></CustomerMessageId><CustomerParam></CustomerParam><SenderNumber>0545290862</SenderNumber><SegmentsNumber>1</SegmentsNumber><NotificationDate>13/03/2012 10:16:56</NotificationDate><SentMessage>test</SentMessage></Message></Messages></ClientNotification>
+      #<ClientNotification><Status>OK</Status><BatchSize>0</BatchSize></ClientNotification>
       xml = response.doc
       xml.remove_namespaces!
 

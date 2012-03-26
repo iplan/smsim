@@ -26,7 +26,21 @@ module Smsim
       parse_notification_values_hash(values)
     end
 
+    # This method receives notification +values+ Hash and tries to type cast it's values and determine delivery status (add delivered?)
+    # @raises Smsim::Errors::GatewayError when values hash is missing attributes or when one of the attributes fails to be parsed
+    #
+    # Method returns object with the following attributes:
+    # * +gateway_status+ - gateway status (integer) value. see api pdf for more info about this value
+    # * +delivered?+ - whether the sms was delivered or failed (according to pdf api status)
+    # * +parts_count+ - how many parts the sms was
+    # * +completed_at+ - when the sms was delivered (as reported by network operator)
+    # * +phone+ - the phone to which sms was sent
+    # * +message_id+ - gateway message id of the sms that was sent
     def self.parse_notification_values_hash(values)
+      [:gateway_status, :phone, :message_id, :parts_count, :completed_at].each do |key|
+        raise Smsim::Errors::GatewayError.new(301, "Missing notification values key #{key}. Values were: #{values.inspect}") if values[key].blank?
+      end
+
       begin
         values[:gateway_status] = Integer(values[:gateway_status])
         values[:delivered?] = gateway_status_delivered?(values[:gateway_status])
