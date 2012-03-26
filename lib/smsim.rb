@@ -1,4 +1,4 @@
-%w{config  gateway  sender  delivery_notifications_parser  report_puller  sms_reply  sms_replies_parser}.each do |file_name|
+%w{config  gateway  sender  delivery_notifications_parser  report_puller  sms_replies_parser}.each do |file_name|
   require File.join(File.dirname(__FILE__), 'smsim', file_name)
 end
 
