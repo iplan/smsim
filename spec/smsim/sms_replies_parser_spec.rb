@@ -22,4 +22,26 @@ describe Smsim::SmsRepliesParser do
     end
   end
 
+  describe '#generate_reply_message_id' do
+    it 'should convert from phone number that contains only digits to integer and then to 36 base' do
+      parser.generate_reply_message_id('0541234567', '1234', Time.now).split('-').first.should == '8y8j9j'
+      parser.generate_reply_message_id('972541234567', '1234', Time.now).split('-').first.should == 'ces1xv9j'
+    end
+
+    it 'should not modify phone number that contains non digits' do
+      parser.generate_reply_message_id('+054123a4567', '123', Time.now).split('-').first.should == '+054123a4567'
+      parser.generate_reply_message_id('+9725412a34567', '123', Time.now).split('-').first.should == '+9725412a34567'
+    end
+
+    it 'should convert reply to phone number that contains only digits to integer and then to 36 base' do
+      parser.generate_reply_message_id('1234', '0541234567', Time.now).split('-').second.should == '8y8j9j'
+      parser.generate_reply_message_id('1234', '972541234567', Time.now).split('-').second.should == 'ces1xv9j'
+    end
+
+    it 'should not modify reply to phone number that contains non digits' do
+      parser.generate_reply_message_id('1234', '+054123a4567', Time.now).split('-').second.should == '+054123a4567'
+      parser.generate_reply_message_id('1234', '+972541234567', Time.now).split('-').second.should == '+972541234567'
+    end
+  end
+
 end

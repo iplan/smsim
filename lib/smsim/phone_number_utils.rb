@@ -21,6 +21,13 @@ module Smsim
       errors.empty?
     end
 
+
+    # this method will convert given phone number to base 36 string if phone contains digits only
+    # if phone contains digits and letters it will leave it untouched
+    def self.phone_number_to_id_string(phone)
+      phone = phone.to_i.to_s(36) if phone =~ /^[0-9]+$/
+      phone
+    end
   end
 
 end

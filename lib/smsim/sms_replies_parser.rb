@@ -66,8 +66,8 @@ module Smsim
     end
 
     def self.generate_reply_message_id(from_phone, reply_to_phone, received_at)
-      p1 = from_phone.to_i(36).to_s(36)
-      p2 = reply_to_phone.to_i(36).to_s(36)
+      p1 = PhoneNumberUtils.phone_number_to_id_string(from_phone)
+      p2 = PhoneNumberUtils.phone_number_to_id_string(reply_to_phone)
       p3 = received_at.to_i.to_s(36)
       "#{p1}-#{p2}-#{p3}"
     end
