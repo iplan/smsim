@@ -7,6 +7,7 @@ describe Smsim::Sender do
   context 'when creating' do
     it 'should raise error when post url missing' do
       lambda{ Smsim::Sender.new(options.update(:http_post_url => nil)) }.should raise_error(ArgumentError)
+      puts Time.zone
     end
 
     it 'should raise error if either username or password are missing' do

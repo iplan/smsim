@@ -39,6 +39,7 @@ module Smsim
     # * +reply_to_phone+ - the phone to sms reply will be sent when receiver replies to message
     # * +message_id+ - gateway message id of the sms that was sent
     def self.parse_notification_values_hash(values)
+      Time.zone = Smsim.config.time_zone
       [:gateway_status, :phone, :message_id, :parts_count, :completed_at].each do |key|
         raise Smsim::Errors::GatewayError.new(301, "Missing notification values key #{key}. Values were: #{values.inspect}") if values[key].blank?
       end
@@ -61,6 +62,7 @@ module Smsim
 
       begin
         values[:completed_at] = DateTime.strptime(values[:completed_at], '%d/%m/%Y %H:%M:%S')
+        values[:completed_at] = Time.zone.parse(values[:completed_at].strftime('%Y-%m-%d %H:%M:%S')) #convert to ActiveSupport::TimeWithZone
       rescue Exception => e
         raise Smsim::Errors::GatewayError.new(302, "NotificationDate could not be converted to date. NotificationDate was: #{values[:completed_at]}")
       end

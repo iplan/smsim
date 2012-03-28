@@ -3,7 +3,6 @@ require 'nokogiri'
 module Smsim
   class SmsRepliesParser
 
-
     # params will look something like the following:
     # { "IncomingXML" => "<IncomingData>
     #                      <PhoneNumber>0501111111</PhoneNumber>
@@ -45,6 +44,7 @@ module Smsim
     # * +received_at+ - when the sms was received (as reported by gateway server)
     # * +message_id+ - uniq message id generated from phone,reply_to_phone and received_at timestamp
     def self.parse_reply_values_hash(values)
+      Time.zone = Smsim.config.time_zone
       [:phone, :text, :reply_to_phone].each do |key|
         raise Smsim::Errors::GatewayError.new(601, "Missing sms reply values key #{key}. Values were: #{values.inspect}") if values[key].blank?
       end
@@ -55,6 +55,7 @@ module Smsim
       if values[:received_at].is_a?(String)
         begin
           values[:received_at] = DateTime.strptime(values[:received_at], '%d/%m/%Y %H:%M:%S')
+          values[:received_at] = Time.zone.parse(values[:received_at].strftime('%Y-%m-%d %H:%M:%S')) #convert to ActiveSupport::TimeWithZone
         rescue Exception => e
           raise Smsim::Errors::GatewayError.new(603, "NotificationDate could not be converted to date. NotificationDate was: #{values[:received_at]}")
         end

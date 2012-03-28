@@ -15,9 +15,9 @@ describe Smsim::SmsRepliesParser do
       Time.stub(:now).and_return(Time.utc(2011, 8, 1, 11, 15, 00))
 
       reply.should be_present
-      reply.phone.should == '0541234567'
+      reply.phone.should == '972541234567'
       reply.text.should == 'kak dila'
-      reply.reply_to_phone.should == '0529992090'
+      reply.reply_to_phone.should == '972529992090'
       reply.received_at.strftime('%d/%m/%Y %H:%M:%S').should == '01/08/2011 11:15:00'
     end
   end
