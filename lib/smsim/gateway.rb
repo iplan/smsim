@@ -34,6 +34,10 @@ module Smsim
       Smsim::DeliveryNotificationsParser.http_push(params)
     end
 
+    def on_sms_reply_http_push(params)
+      Smsim::SmsRepliesParser.http_push(params)
+    end
+
     def pull_notification_deliveries_and_sms_replies_report(batch_size = 100)
       @report_puller.pull_delivery_notifications_and_sms_replies(batch_size)
     end
