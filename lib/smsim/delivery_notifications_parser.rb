@@ -13,7 +13,7 @@ module Smsim
     #   "CustomerMessageId"=>"18825cc0-6a2d-11e1-903f-70cd60fffee5", "BillingCodeId"=>"1", "id"=>"", "Network"=>"054", "CustomerParam"=>"",
     #   "NotificationDate"=>"09/03/2012 23:16:04", "ActionType"=>"Content", "Price"=>"0.00"}
     def self.http_push(params)
-      ['PhoneNumber', 'Status', 'CustomerMessageId', 'SegmentsNumber', 'NotificationDate'].each do |p|
+      %w(PhoneNumber   Status   CustomerMessageId   SegmentsNumber   NotificationDate).each do |p|
         raise Smsim::Errors::GatewayError.new(301, "Missing http parameter #{p}. Parameters were: #{params.inspect}") if params[p].blank?
       end
       logger.debug "Parsing http push delivery notification params: #{params.inspect}"

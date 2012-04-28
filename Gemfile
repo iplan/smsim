@@ -7,6 +7,7 @@ gem 'nokogiri'
 gem 'uuidtools'
 gem 'logging'
 gem 'activesupport'
+gem 'tzinfo' # for timezones support
 gem 'i18n'
 
 # Add dependencies to develop your gem here.

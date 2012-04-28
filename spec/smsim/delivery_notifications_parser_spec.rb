@@ -21,7 +21,7 @@ describe Smsim::DeliveryNotificationsParser do
     it 'should return DeliveryNotification with all fields initialized' do
       notification.should be_present
       notification.message_id.should == 'a1'
-      notification.phone.should == '0545123456'
+      notification.phone.should == '972545123456'
       notification.gateway_status.should be_a(Integer)
       notification.gateway_status.should == 1
       notification.parts_count.should be_a(Integer)

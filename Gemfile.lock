@@ -51,6 +51,7 @@ GEM
       nokogiri (>= 1.4.0)
       nori (~> 1.1)
       wasabi (~> 2.1)
+    tzinfo (0.3.32)
     uuidtools (2.1.2)
     wasabi (2.1.0)
       nokogiri (>= 1.4.0)
@@ -74,5 +75,6 @@ DEPENDENCIES
   rdoc (~> 3.12)
   rspec (= 2.7.0)
   savon
+  tzinfo
   uuidtools
   webmock
