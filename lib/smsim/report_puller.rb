@@ -1,5 +1,6 @@
 module Smsim
   class ReportPuller
+    attr_reader :logger
 
     # +options+ hash must have the following keys:
     #  * wsdl_url - url to from which to pull report (webservice url wdsl)
@@ -9,6 +10,7 @@ module Smsim
       raise ArgumentError.new("WSDL url is missing") if options[:wsdl_url].blank?
       raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
       @options = options
+      @logger = Logging.logger[self.class]
     end
 
     # This method will pull sms replies and delivery notifications report from smsim webservice.
@@ -22,11 +24,13 @@ module Smsim
     def pull_delivery_notifications_and_sms_replies(batch_size = 100)
       service = Savon::Client.new(@options[:wsdl_url])
       soap_body = {'userName' => @options[:username], 'password' => @options[:password], 'batchSize' => batch_size}
+      logger.debug "Request delivery notifications and incoming replies report from url: #{@options[:wsdl_url]}. SOAP body request: #{soap_body.inspect}"
       response = service.request(:pull_client_notification){ soap.body = soap_body }
 
       #<ClientNotification><Status>OK</Status><BatchSize>1</BatchSize><Messages><Message><Type>Notification</Type><PhoneNumber>0527718999</PhoneNumber><Network>052</Network><Status>2</Status><StatusDescription>Delivered</StatusDescription><CustomerMessageId></CustomerMessageId><CustomerParam></CustomerParam><SenderNumber>0545290862</SenderNumber><SegmentsNumber>1</SegmentsNumber><NotificationDate>13/03/2012 10:16:56</NotificationDate><SentMessage>test</SentMessage></Message></Messages></ClientNotification>
       #<ClientNotification><Status>OK</Status><BatchSize>0</BatchSize></ClientNotification>
       soap_xml = response.doc
+      logger.debug "Received response xml: \n#{soap_xml}"
       soap_xml.remove_namespaces!
 
       xml = ::Nokogiri::XML(soap_xml.at_css('PullClientNotificationResult').text)
@@ -79,6 +83,8 @@ module Smsim
           end
         end
       end
+
+      logger.debug "Returning parsed response: #{response.inspect}"
 
       response
     end

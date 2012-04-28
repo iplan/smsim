@@ -2,6 +2,9 @@ require 'nokogiri'
 
 module Smsim
   class SmsRepliesParser
+    def self.logger
+      @@logger ||= Logging.logger[self]
+    end
 
     # params will look something like the following:
     # { "IncomingXML" => "<IncomingData>
@@ -23,6 +26,7 @@ module Smsim
       end
 
       begin
+        logger.debug "Parsing http push reply xml: \n#{params['IncomingXML']}"
         doc = ::Nokogiri::XML(params['IncomingXML'])
         parse_reply_values_hash(
           :phone => doc.at_css('IncomingData PhoneNumber').text,
@@ -44,6 +48,7 @@ module Smsim
     # * +received_at+ - when the sms was received (as reported by gateway server)
     # * +message_id+ - uniq message id generated from phone,reply_to_phone and received_at timestamp
     def self.parse_reply_values_hash(values)
+      logger.debug "Parsing reply_values_hash: #{values.inspect}"
       Time.zone = Smsim.config.time_zone
       [:phone, :text, :reply_to_phone].each do |key|
         raise Smsim::Errors::GatewayError.new(601, "Missing sms reply values key #{key}. Values were: #{values.inspect}") if values[key].blank?

@@ -20,7 +20,7 @@ module Smsim
       raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
       raise ArgumentError.new("Reply to number must be cellular phone with 972 country code") if options[:reply_to_number].present? && !PhoneNumberUtils.valid_cellular_phone?(options[:reply_to_number])
       @options = options
-      @logger = Logging.logger[self]
+      @logger = Logging.logger[self.class]
     end
 
     def send_sms(message_text, phones)
@@ -35,7 +35,7 @@ module Smsim
 
       message_id = generate_message_id
       xml = build_send_sms_xml(message_text, phones, message_id)
-      logger.debug "#send_sms - xml - \n #{xml}"
+      logger.debug "#send_sms - making post to #{@options[:http_post_url]} with xml: \n #{xml}"
       response = self.class.post(@options[:http_post_url], :body => {:InforuXML => xml})
       logger.debug "#send_sms - got http response: code=#{response.code}; body=\n#{response.parsed_response}"
       verify_http_response_code(response) # error will be raised if response code is bad

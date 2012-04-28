@@ -3,7 +3,7 @@ require 'uuidtools'
 module Smsim
 
   class Gateway
-    attr_reader :username, :options
+    attr_reader :username, :options, :logger
 
     # Create new gateway with given +username+ and +password+
     # +options+ hash can have the following keys:
@@ -11,6 +11,7 @@ module Smsim
     #  * reply_to_number - to which number sms receiver will reply
     # These keys will be used when sending sms messages
     def initialize(username, password, options = {})
+      @logger = Logging.logger[self.class]
       @options = options
       @urls = Smsim.config.urls.merge(@options.delete(:urls) || {})
       @username = username

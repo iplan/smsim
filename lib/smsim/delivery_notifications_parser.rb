@@ -3,6 +3,9 @@ require 'nokogiri'
 
 module Smsim
   class DeliveryNotificationsParser
+    def self.logger
+      @@logger ||= Logging.logger[self]
+    end
 
     # params will look something like the following:
     # { "SegmentsNumber"=>"1", "ProjectId"=>"3127", "Status"=>"2", "SenderNumber"=>"0545290862", "StatusDescription"=>"Delivered",
@@ -13,6 +16,7 @@ module Smsim
       ['PhoneNumber', 'Status', 'CustomerMessageId', 'SegmentsNumber', 'NotificationDate'].each do |p|
         raise Smsim::Errors::GatewayError.new(301, "Missing http parameter #{p}. Parameters were: #{params.inspect}") if params[p].blank?
       end
+      logger.debug "Parsing http push delivery notification params: #{params.inspect}"
 
       values = {
         :gateway_status => params['Status'],
@@ -39,6 +43,7 @@ module Smsim
     # * +reply_to_phone+ - the phone to sms reply will be sent when receiver replies to message
     # * +message_id+ - gateway message id of the sms that was sent
     def self.parse_notification_values_hash(values)
+      logger.debug "Parsing delivery notification values hash: #{values.inspect}"
       Time.zone = Smsim.config.time_zone
       [:gateway_status, :phone, :message_id, :parts_count, :completed_at].each do |key|
         raise Smsim::Errors::GatewayError.new(301, "Missing notification values key #{key}. Values were: #{values.inspect}") if values[key].blank?
