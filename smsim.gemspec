@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "smsim"
-  s.version = "0.1.0"
+  s.version = "0.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alex Tkachev"]
-  s.date = "2012-03-25"
+  s.date = "2012-04-28"
   s.description = "Ruby api for sms service provider: Smsim"
   s.email = "tkachev.alex@gmail.com"
   s.extra_rdoc_files = [
@@ -27,14 +27,13 @@ Gem::Specification.new do |s|
     "VERSION",
     "lib/smsim.rb",
     "lib/smsim/config.rb",
-    "lib/smsim/core_ext/blank.rb",
     "lib/smsim/delivery_notifications_parser.rb",
     "lib/smsim/errors/gateway_error.rb",
     "lib/smsim/gateway.rb",
+    "lib/smsim/phone_number_utils.rb",
     "lib/smsim/report_puller.rb",
     "lib/smsim/sender.rb",
     "lib/smsim/sms_replies_parser.rb",
-    "lib/smsim/sms_reply.rb",
     "smsim.gemspec",
     "spec/resources/ClientServices.asmx.wsdl.xml",
     "spec/resources/EnvelopeResponse.soap.xml",
@@ -43,6 +42,7 @@ Gem::Specification.new do |s|
     "spec/resources/SmsSendResponse.xml",
     "spec/smsim/delivery_notifications_parser_spec.rb",
     "spec/smsim/gateway_spec.rb",
+    "spec/smsim/phone_number_utils_spec.rb",
     "spec/smsim/report_puller_spec.rb",
     "spec/smsim/sender_spec.rb",
     "spec/smsim/sms_replies_parser_spec.rb",
@@ -67,6 +67,9 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
       s.add_runtime_dependency(%q<uuidtools>, [">= 0"])
       s.add_runtime_dependency(%q<logging>, [">= 0"])
+      s.add_runtime_dependency(%q<activesupport>, [">= 0"])
+      s.add_runtime_dependency(%q<tzinfo>, [">= 0"])
+      s.add_runtime_dependency(%q<i18n>, [">= 0"])
       s.add_development_dependency(%q<rspec>, ["= 2.7.0"])
       s.add_development_dependency(%q<webmock>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, ["~> 3.12"])
@@ -80,6 +83,9 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<nokogiri>, [">= 0"])
       s.add_dependency(%q<uuidtools>, [">= 0"])
       s.add_dependency(%q<logging>, [">= 0"])
+      s.add_dependency(%q<activesupport>, [">= 0"])
+      s.add_dependency(%q<tzinfo>, [">= 0"])
+      s.add_dependency(%q<i18n>, [">= 0"])
       s.add_dependency(%q<rspec>, ["= 2.7.0"])
       s.add_dependency(%q<webmock>, [">= 0"])
       s.add_dependency(%q<rdoc>, ["~> 3.12"])
@@ -94,6 +100,9 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<nokogiri>, [">= 0"])
     s.add_dependency(%q<uuidtools>, [">= 0"])
     s.add_dependency(%q<logging>, [">= 0"])
+    s.add_dependency(%q<activesupport>, [">= 0"])
+    s.add_dependency(%q<tzinfo>, [">= 0"])
+    s.add_dependency(%q<i18n>, [">= 0"])
     s.add_dependency(%q<rspec>, ["= 2.7.0"])
     s.add_dependency(%q<webmock>, [">= 0"])
     s.add_dependency(%q<rdoc>, ["~> 3.12"])
