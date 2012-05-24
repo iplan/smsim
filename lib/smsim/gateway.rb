@@ -16,18 +16,21 @@ module Smsim
     # +config+ hash with the following keys:
     #   * +username+ - gateway user name
     #   * +password - gateway password
+    #   * +gateway_type - gateway type (two_way or one_way)
     #   * delivery_notification_url - url to which delivery notification will be sent. might be nil and then no delivery notifications will be sent.
     #   * sender_number - to which number sms receiver will reply
     # These keys will be used when sending sms messages
     def initialize(config)
-      [:username, :password, :sender_number].each do |attr|
+      [:username, :password, :sender_number, :gateway_type].each do |attr|
         raise ArgumentError.new("Missing required attribute #{attr}") if config[attr].blank?
       end
+      @gateway_type = config[:gateway_type]
       @sender_number = config[:sender_number]
       @sender_name = config[:sender_name] if config[:sender_name].present?
 
-      raise ArgumentError.new("Reply to number must be cellular or land line phone with 972 country code, was: #@sender_number") if !PhoneNumberUtils.valid_sender_number?(@sender_number)
+      raise ArgumentError.new("Reply to number must be cellular or land line phone with 972 country code, was: #@sender_number") if !PhoneNumberUtils.valid_sender_number?(@sender_number, two_way?)
       raise ArgumentError.new("Sender name must be max 11 latin chars") if @sender_name.present? && !(@sender_name =~ /^[a-z]{3,11}$/i)
+      raise ArgumentError.new("Sender name cannot be used in two way gateway") if @sender_name.present? && two_way?
 
       @logger = Logging.logger[self.class]
       @username = config[:username]
@@ -37,6 +40,14 @@ module Smsim
       @inforu_urls = Smsim.config.urls.merge(config[:urls] || {})
       @sms_sender = Sender.new(self)
       @report_puller = ReportPuller.new(self)
+    end
+
+    def two_way?
+      @gateway_type == 'two_way'
+    end
+
+    def one_way?
+      @gateway_type == 'two_way'
     end
 
     #def initialize2(username, password, options = {})

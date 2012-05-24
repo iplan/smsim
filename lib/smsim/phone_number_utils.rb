@@ -27,8 +27,10 @@ module Smsim
       valid_phone_length?(phone, @@valid_lengths[:land_line].first) || valid_phone_length?(phone, @@valid_lengths[:land_line].last)
     end
 
-    def self.valid_sender_number?(phone)
-      valid_cellular_phone?(phone) || valid_land_line_phone?(phone)
+    # for two way sms - valid sender number is cellular phone
+    # for one way sms - sender number must include at least 4 digits
+    def self.valid_sender_number?(phone, two_way)
+      two_way ? valid_cellular_phone?(phone) : phone.to_s =~ /^[0-9]{4}$/
     end
 
     # make sure phone is in given length and starts with country code
