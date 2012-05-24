@@ -2,25 +2,54 @@ require 'uuidtools'
 
 module Smsim
 
+  # NOTE: sender_number is always mandatory. if you want to be this gateway ONE way, provide non existing sender number, like 03-1234567
+  # NOTE: sender_name is not support on all networks, on those that it is, the sms will be automatically one way
   class Gateway
-    attr_reader :username, :options, :logger
+    attr_reader :username, :password, :inforu_urls, :logger
+    attr_reader :delivery_notification_url # url to which delivery notification will be sent (optional)
+    attr_reader :sender_number, :sender_name
+
+    attr_reader :sms_sender
+    attr_reader :report_puller
 
     # Create new gateway with given +username+ and +password+
-    # +options+ hash can have the following keys:
-    #  * delivery_notification_url - url to which delivery notification will be sent
-    #  * reply_to_number - to which number sms receiver will reply
+    # +config+ hash with the following keys:
+    #   * +username+ - gateway user name
+    #   * +password - gateway password
+    #   * delivery_notification_url - url to which delivery notification will be sent. might be nil and then no delivery notifications will be sent.
+    #   * sender_number - to which number sms receiver will reply
     # These keys will be used when sending sms messages
-    def initialize(username, password, options = {})
-      @logger = Logging.logger[self.class]
-      @options = options
-      @urls = Smsim.config.urls.merge(@options.delete(:urls) || {})
-      @username = username
-      @password = password
-      raise ArgumentError.new("Username and password must be present") if @username.blank? || @password.blank?
+    def initialize(config)
+      [:username, :password, :sender_number].each do |attr|
+        raise ArgumentError.new("Missing required attribute #{attr}") if config[attr].blank?
+      end
+      @sender_number = config[:sender_number]
+      @sender_name = config[:sender_name] if config[:sender_name].present?
 
-      @sms_sender = Sender.new(options.merge(:username => username, :password => password, :http_post_url => @urls[:send_sms]))
-      @report_puller = ReportPuller.new(options.merge(:username => username, :password => password, :wsdl_url => @urls[:delivery_notifications_and_sms_replies_report_pull]))
+      raise ArgumentError.new("Reply to number must be cellular or land line phone with 972 country code, was: #@sender_number") if !PhoneNumberUtils.valid_sender_number?(@sender_number)
+      raise ArgumentError.new("Sender name must be max 11 latin chars") if @sender_name.present? && !(@sender_name =~ /^[a-z]{3,11}$/i)
+
+      @logger = Logging.logger[self.class]
+      @username = config[:username]
+      @password = config[:password]
+      @delivery_notification_url = config[:delivery_notification_url]
+
+      @inforu_urls = Smsim.config.urls.merge(config[:urls] || {})
+      @sms_sender = Sender.new(self)
+      @report_puller = ReportPuller.new(self)
     end
+
+    #def initialize2(username, password, options = {})
+    #  @logger = Logging.logger[self.class]
+    #  @options = options
+    #  @urls = Smsim.config.urls.merge(@options.delete(:urls) || {})
+    #  @username = username
+    #  @password = password
+    #  raise ArgumentError.new("Username and password must be present") if @username.blank? || @password.blank?
+    #
+    #  @sms_sender = Sender.new(options.merge(:username => username, :password => password, :http_post_url => @urls[:send_sms]))
+    #  @report_puller = ReportPuller.new(options.merge(:username => username, :password => password, :wsdl_url => @urls[:delivery_notifications_and_sms_replies_report_pull]))
+    #end
 
     # send +text+ string to the phones specified in +phones+ array
     # Returns response OpenStruct that contains:
@@ -29,6 +58,10 @@ module Smsim
     #  * +number_of_recipients+ - number of recipients the message was sent to
     def send_sms(text, phones)
       @sms_sender.send_sms(text, phones)
+    end
+
+    def sender_number_without_country_code
+      @sender_number_without_country_code ||= self.sender_number.start_with?('972') ? self.sender_number.gsub('972', '0') : self.sender_number
     end
 
     def on_delivery_notification_http_push(params)

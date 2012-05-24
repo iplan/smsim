@@ -2,15 +2,14 @@ module Smsim
   class ReportPuller
     attr_reader :logger
 
-    # +options+ hash must have the following keys:
-    #  * wsdl_url - url to from which to pull report (webservice url wdsl)
-    #  * username - gateway username
-    #  * password - gateway password
-    def initialize(options)
-      raise ArgumentError.new("WSDL url is missing") if options[:wsdl_url].blank?
-      raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
-      @options = options
+    # create new reports puller for given gateway
+    def initialize(gateway)
+      @gateway = gateway
       @logger = Logging.logger[self.class]
+    end
+
+    def wsdl_url
+      @gateway.inforu_urls[:delivery_notifications_and_sms_replies_report_pull]
     end
 
     # This method will pull sms replies and delivery notifications report from smsim webservice.
@@ -22,9 +21,9 @@ module Smsim
     # * +notifications+ - array of notification delivery objects (see Smsim::DeliveryNotificationsParser#parse_notification_values_hash for object attributes)
     # * +replies+ - array of sms replies objects (see Smsim::SmsRepliesParser.parse_reply_values_hash for object attributes)
     def pull_delivery_notifications_and_sms_replies(batch_size = 100)
-      service = Savon::Client.new(@options[:wsdl_url])
-      soap_body = {'userName' => @options[:username], 'password' => @options[:password], 'batchSize' => batch_size}
-      logger.debug "Request delivery notifications and incoming replies report from url: #{@options[:wsdl_url]}. SOAP body request: #{soap_body.inspect}"
+      service = Savon::Client.new(wsdl_url)
+      soap_body = {'userName' => @gateway.username, 'password' => @gateway.password, 'batchSize' => batch_size}
+      logger.debug "Request delivery notifications and incoming replies report from url: #{wsdl_url}. SOAP body request: #{soap_body.inspect}"
       response = service.request(:pull_client_notification){ soap.body = soap_body }
 
       #<ClientNotification><Status>OK</Status><BatchSize>1</BatchSize><Messages><Message><Type>Notification</Type><PhoneNumber>0527718999</PhoneNumber><Network>052</Network><Status>2</Status><StatusDescription>Delivered</StatusDescription><CustomerMessageId></CustomerMessageId><CustomerParam></CustomerParam><SenderNumber>0545290862</SenderNumber><SegmentsNumber>1</SegmentsNumber><NotificationDate>13/03/2012 10:16:56</NotificationDate><SentMessage>test</SentMessage></Message></Messages></ClientNotification>

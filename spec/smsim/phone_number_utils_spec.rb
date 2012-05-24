@@ -23,4 +23,15 @@ describe Smsim::PhoneNumberUtils do
     end
   end
 
+  describe '#valid_land_line_phone?' do
+    it 'should not be valid without country code' do
+      utils.valid_land_line_phone?('031234567').should be_false
+    end
+
+    it 'should be valid with country code' do
+      utils.valid_land_line_phone?('97231234567').should be_true
+      utils.valid_land_line_phone?('972771234567').should be_true
+    end
+  end
+
 end

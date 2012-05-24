@@ -1,29 +1,8 @@
 require 'spec_helper'
 
 describe Smsim::Sender do
-  let(:options){ {:username => 'alex', :password => 'pass', :http_post_url => Smsim.config.urls[:send_sms], :reply_to_number => '972501234567'} }
-  let(:sender){ Smsim::Sender.new(options) }
-
-  context 'when creating' do
-    it 'should raise error when post url missing' do
-      lambda{ Smsim::Sender.new(options.update(:http_post_url => nil)) }.should raise_error(ArgumentError)
-      puts Time.zone
-    end
-
-    it 'should raise error if either username or password are missing' do
-      lambda{ Smsim::Sender.new(options.update(:username => nil)) }.should raise_error(ArgumentError)
-      lambda{ Smsim::Sender.new(options.update(:password => nil)) }.should raise_error(ArgumentError)
-    end
-
-    it 'should raise error if reply_to_phone is not valid cellular phone' do
-      lambda{ Smsim::Sender.new(options.update(:reply_to_number => '1234')) }.should raise_error(ArgumentError)
-      lambda{ Smsim::Sender.new(options.update(:reply_to_number => '0545290862')) }.should raise_error(ArgumentError)
-    end
-
-    it 'should create when all arguments present' do
-      sender.should be_present
-    end
-  end
+  let(:gateway){ Smsim::Gateway.new(:username => 'alex', :password => 'pass', :sender_number => '972501234567') }
+  let(:sender){ gateway.sms_sender }
 
   describe '#send_sms' do
     let(:message){ 'my message text' }
@@ -68,7 +47,7 @@ describe Smsim::Sender do
     end
 
     it 'should have sender number' do
-      xml_doc.at_css('Inforu Settings SenderNumber').text.should == options[:reply_to_number]
+      xml_doc.at_css('Inforu Settings SenderNumber').text.should == gateway.sender_number_without_country_code
     end
 
     it 'should have message_id' do
@@ -76,19 +55,20 @@ describe Smsim::Sender do
     end
 
     it 'should have delivery notification url if specified' do
-      options.update(:delivery_notification_url => 'http://google.com?auth=1234&alex=king')
+      gateway = Smsim::Gateway.new(:username => 'alex', :password => 'pass', :sender_number => '972501234567', :delivery_notification_url => 'http://google.com?auth=1234&alex=king')
+      xml_doc = Nokogiri::XML(gateway.sms_sender.build_send_sms_xml(message, phones, '123'))
       xml_doc.at_css('Inforu Settings DeliveryNotificationUrl').text.should == "http://google.com?auth=1234&alex=king"
     end
 
     it 'should not have delivery notification url if not specified' do
-      options[:delivery_notification_url].should be_blank
+      gateway.delivery_notification_url.should be_blank
       xml_doc.at_css('Inforu Settings DeliveryNotificationUrl').should be_nil
     end
 
   end
 
   describe '#verify_response_code' do
-    let(:request_uri){ options[:http_post_url] }
+    let(:request_uri){ sender.api_send_sms_url }
 
     it 'should raise HttpResponseError if url not found' do
       stub_request(:any, request_uri).to_return(:status => 404)

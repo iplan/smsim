@@ -6,21 +6,16 @@ module Smsim
   # this class sends smses and parses repsones
   class Sender
     include ::HTTParty
-    attr_reader :logger
+    attr_reader :logger, :gateway
 
-    # Create new sms sender with given +options+ with the following keys:
-    #  * +username+ - gateway username
-    #  * +password+ - gateway password
-    #  * +delivery_notification_url+ - url to which delivery notification will be sent
-    #  * +reply_to_number+ - to which number sms receiver will reply
-    # These keys will be used when sending sms messages
-    def initialize(options)
-      raise ArgumentError.new("HTTP post url is missing") if options[:http_post_url].blank?
-      raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
-      raise ArgumentError.new("Username and password must be present") if options[:username].blank? || options[:password].blank?
-      raise ArgumentError.new("Reply to number must be cellular phone with 972 country code") if options[:reply_to_number].present? && !PhoneNumberUtils.valid_cellular_phone?(options[:reply_to_number])
-      @options = options
+    # Create new sms sender with given +gateway+
+    def initialize(gateway)
+      @gateway = gateway
       @logger = Logging.logger[self.class]
+    end
+
+    def api_send_sms_url
+      @gateway.inforu_urls[:send_sms]
     end
 
     def send_sms(message_text, phones)
@@ -35,8 +30,8 @@ module Smsim
 
       message_id = generate_message_id
       xml = build_send_sms_xml(message_text, phones, message_id)
-      logger.debug "#send_sms - making post to #{@options[:http_post_url]} with xml: \n #{xml}"
-      response = self.class.post(@options[:http_post_url], :body => {:InforuXML => xml})
+      logger.debug "#send_sms - making post to #{api_send_sms_url} with xml: \n #{xml}"
+      response = self.class.post(api_send_sms_url, :body => {:InforuXML => xml})
       logger.debug "#send_sms - got http response: code=#{response.code}; body=\n#{response.parsed_response}"
       verify_http_response_code(response) # error will be raised if response code is bad
       response = parse_response_xml(response)
@@ -49,18 +44,12 @@ module Smsim
     end
 
     def build_send_sms_xml(message_text, phones, message_id)
-      # enhance it with gateway_user parameter
-      #if options[:delivery_notification_url].present?
-      #  prefix = options[:delivery_notification_url].include?('?') ? '&' : '?'
-      #  options[:delivery_notification_url] << "#{prefix}gateway_user=#{options[:username]}"
-      #end
-
       xml = Builder::XmlMarkup.new(:indent => 2)
       xml.instruct!
       xml.Inforu do |root|
         root.User do |user|
-          user.Username @options[:username]
-          user.Password @options[:password]
+          user.Username @gateway.username
+          user.Password @gateway.password
         end
         root.Content(:Type => 'sms') do |content|
           content.Message message_text
@@ -69,9 +58,10 @@ module Smsim
           recipients.PhoneNumber phones.join(';')
         end
         root.Settings do |settings|
-          settings.SenderNumber @options[:reply_to_number]
+          settings.SenderName @gateway.sender_name if @gateway.sender_name.present?
+          settings.SenderNumber @gateway.sender_number_without_country_code
           settings.CustomerMessageId message_id
-          settings.DeliveryNotificationUrl @options[:delivery_notification_url] if @options[:delivery_notification_url].present?
+          settings.DeliveryNotificationUrl @gateway.delivery_notification_url if @gateway.delivery_notification_url.present?
         end
       end
     end
