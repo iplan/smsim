@@ -17,6 +17,10 @@ module Smsim
       phone
     end
 
+    def self.without_country_code(phone)
+      phone.start_with?('972') ? phone.gsub('972', '0') : phone
+    end
+
     # validates that given phone is Israeli cellular format with country code: 972545123456
     def self.valid_cellular_phone?(phone)
       valid_phone_length?(phone, @@valid_lengths[:cellular])

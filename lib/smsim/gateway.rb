@@ -47,7 +47,7 @@ module Smsim
     end
 
     def one_way?
-      @gateway_type == 'two_way'
+      @gateway_type == 'one_way'
     end
 
     #def initialize2(username, password, options = {})
@@ -62,17 +62,20 @@ module Smsim
     #  @report_puller = ReportPuller.new(options.merge(:username => username, :password => password, :wsdl_url => @urls[:delivery_notifications_and_sms_replies_report_pull]))
     #end
 
-    # send +text+ string to the phones specified in +phones+ array
+    # send +text+ string to the +phones+ array of phone numbers
+    # +options+ - is a hash of optional configuration that can be passed to sms sender:
+    #  * +sender_name+ - sender name that will override gateway sender name
+    #  * +sender_number+ - sender number that will override gateway sender number
     # Returns response OpenStruct that contains:
     #  * +message_id+ - message id string. You must save this id if you want to receive delivery notifications via push/pull
     #  * +status+ - gateway status of sms send
     #  * +number_of_recipients+ - number of recipients the message was sent to
-    def send_sms(text, phones)
-      @sms_sender.send_sms(text, phones)
+    def send_sms(text, phones, options = {})
+      @sms_sender.send_sms(text, phones, options = {})
     end
 
     def sender_number_without_country_code
-      @sender_number_without_country_code ||= self.sender_number.start_with?('972') ? self.sender_number.gsub('972', '0') : self.sender_number
+      @sender_number_without_country_code ||= PhoneNumberUtils.without_country_code(self.sender_number)
     end
 
     def on_delivery_notification_http_push(params)

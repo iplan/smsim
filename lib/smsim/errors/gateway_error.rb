@@ -45,10 +45,11 @@ module Smsim
       #    602 - xml in http push is invalid
       #    603 - failed to convert received reply date
       #
-      attr_reader :code
+      attr_reader :code, :more_info
 
-      def initialize(code, message)
+      def initialize(code, message, more_info = {})
         @code = code
+        @more_info = more_info
         super(message)
       end
 

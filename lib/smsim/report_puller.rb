@@ -37,12 +37,12 @@ module Smsim
       # temporary convert hash, remove when new version is uploaded (talk to Zorik about it)
       mapper_status_text_to_integer = {'OK' => 1, 'Failed' => -1, 'BadUserNameOrPassword' => -2, 'UserNameNotExists' => -3, 'PasswordNotExists' => -4}
       response_status = xml.at_css('Status').text
-      raise Smsim::Errors::GatewayError.new(501, "Response status '#{response_status}' is neither of #{mapper_status_text_to_integer.keys}") unless mapper_status_text_to_integer.keys.include?(response_status)
+      raise Smsim::Errors::GatewayError.new(501, "Response status '#{response_status}' is neither of #{mapper_status_text_to_integer.keys}", :xml => xml) unless mapper_status_text_to_integer.keys.include?(response_status)
 
       begin
         batch_size = Integer(xml.at_css('BatchSize').text)
       rescue Exception => e
-        raise Smsim::Errors::GatewayError.new(502, e.message)
+        raise Smsim::Errors::GatewayError.new(502, e.message, :xml => xml)
       end
 
       response = OpenStruct.new({

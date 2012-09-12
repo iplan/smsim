@@ -18,7 +18,7 @@ module Smsim
       @gateway.inforu_urls[:send_sms]
     end
 
-    def send_sms(message_text, phones)
+    def send_sms(message_text, phones, options = {})
       raise ArgumentError.new("Text must be at least 1 character long") if message_text.blank?
       raise ArgumentError.new("No phones were given") if phones.blank?
       phones = [phones] unless phones.is_a?(Array)
@@ -29,21 +29,22 @@ module Smsim
       #raise ArgumentError.new("Max phones number is 100") if phones.count > 100
 
       message_id = generate_message_id
-      xml = build_send_sms_xml(message_text, phones, message_id)
+      xml = build_send_sms_xml(message_text, phones, message_id, options)
       logger.debug "#send_sms - making post to #{api_send_sms_url} with xml: \n #{xml}"
-      response = self.class.post(api_send_sms_url, :body => {:InforuXML => xml})
-      logger.debug "#send_sms - got http response: code=#{response.code}; body=\n#{response.parsed_response}"
-      verify_http_response_code(response) # error will be raised if response code is bad
-      response = parse_response_xml(response)
+      http_response = self.class.post(api_send_sms_url, :body => {:InforuXML => xml})
+      logger.debug "#send_sms - got http response: code=#{http_response.code}; body=\n#{http_response.parsed_response}"
+      verify_http_response_code(http_response) # error will be raised if response code is bad
+      xml = http_response.parsed_response
+      response = parse_response_xml(http_response)
       response.message_id = message_id
       logger.debug "#send_sms - parsed response: #{response.inspect}"
       if response.status != 1
-        raise Smsim::Errors::GatewayError.new(Smsim::Errors::GatewayError.map_send_sms_xml_response_status(response.status), "Sms send failed (status #{response.status}): #{response.description}")
+        raise Smsim::Errors::GatewayError.new(Smsim::Errors::GatewayError.map_send_sms_xml_response_status(response.status), "Sms send failed (status #{response.status}): #{response.description}", :xml_response => xml, :parsed_response => response)
       end
       response
     end
 
-    def build_send_sms_xml(message_text, phones, message_id)
+    def build_send_sms_xml(message_text, phones, message_id, options = {})
       xml = Builder::XmlMarkup.new(:indent => 2)
       xml.instruct!
       xml.Inforu do |root|
@@ -58,34 +59,35 @@ module Smsim
           recipients.PhoneNumber phones.join(';')
         end
         root.Settings do |settings|
-          settings.SenderName @gateway.sender_name if @gateway.sender_name.present?
-          settings.SenderNumber @gateway.sender_number_without_country_code
+          sender_name = options[:sender_name] || @gateway.sender_name
+          settings.SenderName sender_name if sender_name.present?
+          sender_number = options[:sender_number] || @gateway.sender_number
+          settings.SenderNumber PhoneNumberUtils.without_country_code(sender_number)
           settings.CustomerMessageId message_id
           settings.DeliveryNotificationUrl @gateway.delivery_notification_url if @gateway.delivery_notification_url.present?
         end
       end
     end
 
-    def verify_http_response_code(response)
-      case response.code
+    def verify_http_response_code(http_response)
+      case http_response.code
         when 200
           #all good do not raise anything
           true
         when 400
-          raise Smsim::Errors::GatewayError.new(400, "Bad request to #{response.request.last_uri} \n#{response.parsed_response}")
+          raise Smsim::Errors::GatewayError.new(400, "Bad request to #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
         when 401
-          raise Smsim::Errors::GatewayError.new(401, "Unauthorized: #{response.request.last_uri} \n#{response.parsed_response}")
+          raise Smsim::Errors::GatewayError.new(401, "Unauthorized: #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
         when 403
-          raise Smsim::Errors::GatewayError.new(403, "Forbidden: #{response.request.last_uri} \n#{response.parsed_response}")
+          raise Smsim::Errors::GatewayError.new(403, "Forbidden: #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
         when 404
-          raise Smsim::Errors::GatewayError.new(404, "Url not found #{response.request.last_uri} \n#{response.parsed_response}")
+          raise Smsim::Errors::GatewayError.new(404, "Url not found #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
         when 500...600
-          raise Smsim::Errors::GatewayError.new(450, "Error on server at #{response.request.last_uri} \n#{response.parsed_response}")
+          raise Smsim::Errors::GatewayError.new(450, "Error on server at #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
       end
     end
 
-    def parse_response_xml(httparty_response)
-      xml = httparty_response.parsed_response
+    def parse_response_xml(xml)
       begin
         doc = ::Nokogiri::XML(xml)
         OpenStruct.new({

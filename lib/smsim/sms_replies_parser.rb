@@ -22,7 +22,7 @@ module Smsim
     # ShortCode - number to which reply was sent (0529992090)
     def self.http_push(params)
       ['IncomingXML'].each do |p|
-        raise Smsim::Errors::GatewayError.new(601, "Missing http parameter #{p}. Parameters were: #{params.inspect}") if params[p].blank?
+        raise Smsim::Errors::GatewayError.new(601, "Missing http parameter #{p}. Parameters were: #{params.inspect}", :params => params) if params[p].blank?
       end
 
       begin
@@ -34,7 +34,7 @@ module Smsim
           :reply_to_phone => doc.at_css('IncomingData ShortCode').text
         )
       rescue Exception => e
-        raise Smsim::Errors::GatewayError.new(602, e.message)
+        raise Smsim::Errors::GatewayError.new(602, "Failed to parse reply push xml: #{e.message}", :xml => params['IncomingXML'])
       end
     end
 
@@ -51,7 +51,7 @@ module Smsim
       logger.debug "Parsing reply_values_hash: #{values.inspect}"
       Time.zone = Smsim.config.time_zone
       [:phone, :text, :reply_to_phone].each do |key|
-        raise Smsim::Errors::GatewayError.new(601, "Missing sms reply values key #{key}. Values were: #{values.inspect}") if values[key].blank?
+        raise Smsim::Errors::GatewayError.new(601, "Missing sms reply values key #{key}. Values were: #{values.inspect}", :values => values) if values[key].blank?
       end
 
       values[:phone] = PhoneNumberUtils.ensure_country_code(values[:phone])
@@ -62,7 +62,7 @@ module Smsim
           values[:received_at] = DateTime.strptime(values[:received_at], '%d/%m/%Y %H:%M:%S')
           values[:received_at] = Time.zone.parse(values[:received_at].strftime('%Y-%m-%d %H:%M:%S')) #convert to ActiveSupport::TimeWithZone
         rescue Exception => e
-          raise Smsim::Errors::GatewayError.new(603, "NotificationDate could not be converted to date. NotificationDate was: #{values[:received_at]}")
+          raise Smsim::Errors::GatewayError.new(603, "NotificationDate could not be converted to date. NotificationDate was: #{values[:received_at]}", :values => values)
         end
       else
         values[:received_at] = Time.now

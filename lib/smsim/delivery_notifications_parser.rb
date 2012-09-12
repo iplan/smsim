@@ -14,7 +14,7 @@ module Smsim
     #   "NotificationDate"=>"09/03/2012 23:16:04", "ActionType"=>"Content", "Price"=>"0.00"}
     def self.http_push(params)
       %w(PhoneNumber   Status   CustomerMessageId   SegmentsNumber   NotificationDate).each do |p|
-        raise Smsim::Errors::GatewayError.new(301, "Missing http parameter #{p}. Parameters were: #{params.inspect}") if params[p].blank?
+        raise Smsim::Errors::GatewayError.new(301, "Missing http parameter #{p}. Parameters were: #{params.inspect}", :params => params) if params[p].blank?
       end
       logger.debug "Parsing http push delivery notification params: #{params.inspect}"
 
@@ -46,7 +46,7 @@ module Smsim
       logger.debug "Parsing delivery notification values hash: #{values.inspect}"
       Time.zone = Smsim.config.time_zone
       [:gateway_status, :phone, :message_id, :parts_count, :completed_at].each do |key|
-        raise Smsim::Errors::GatewayError.new(301, "Missing notification values key #{key}. Values were: #{values.inspect}") if values[key].blank?
+        raise Smsim::Errors::GatewayError.new(301, "Missing notification values key #{key}. Values were: #{values.inspect}", :values => values) if values[key].blank?
       end
 
       values[:phone] = PhoneNumberUtils.ensure_country_code(values[:phone])
@@ -56,20 +56,20 @@ module Smsim
         values[:gateway_status] = Integer(values[:gateway_status])
         values[:delivered?] = gateway_status_delivered?(values[:gateway_status])
       rescue Exception => e
-        raise Smsim::Errors::GatewayError.new(302, "Status could not be converted to integer. Status was: #{values[:gateway_status]}")
+        raise Smsim::Errors::GatewayError.new(302, "Status could not be converted to integer. Status was: #{values[:gateway_status]}", :values => values)
       end
 
       begin
         values[:parts_count] = Integer(values[:parts_count])
       rescue Exception => e
-        raise Smsim::Errors::GatewayError.new(302, "SegmentsNumber could not be converted to integer. SegmentsNumber was: #{values[:parts_count]}")
+        raise Smsim::Errors::GatewayError.new(302, "SegmentsNumber could not be converted to integer. SegmentsNumber was: #{values[:parts_count]}", :values => values)
       end
 
       begin
         values[:completed_at] = DateTime.strptime(values[:completed_at], '%d/%m/%Y %H:%M:%S')
         values[:completed_at] = Time.zone.parse(values[:completed_at].strftime('%Y-%m-%d %H:%M:%S')) #convert to ActiveSupport::TimeWithZone
       rescue Exception => e
-        raise Smsim::Errors::GatewayError.new(302, "NotificationDate could not be converted to date. NotificationDate was: #{values[:completed_at]}")
+        raise Smsim::Errors::GatewayError.new(302, "NotificationDate could not be converted to date. NotificationDate was: #{values[:completed_at]}", :values => values)
       end
 
       OpenStruct.new(values)
