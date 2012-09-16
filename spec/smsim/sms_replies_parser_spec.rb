@@ -1,14 +1,15 @@
 require 'spec_helper'
 
 describe Smsim::SmsRepliesParser do
-  let(:parser) { Smsim::SmsRepliesParser }
+  let(:gateway){ Smsim::Gateway.new(:username => 'alex', :password => 'pass') }
+  let(:parser){ gateway.sms_replies_parser }
 
   describe '#http_push' do
     let(:reply_values) { {'PhoneNumber' => '0541234567', 'Message' => 'kak dila', 'ShortCode' => '0529992090'} }
     let(:reply) { parser.http_push({'IncomingXML' => XmlResponseStubs.sms_reply_http_xml_string(reply_values)}) }
 
     it 'should raise DeliveryNotificationError if parameters are missing or not of expected type' do
-      lambda { parser.http_push({'Puki' => 'asdf'}) }.should raise_error(Smsim::Errors::GatewayError)
+      lambda { parser.http_push({'Puki' => 'asdf'}) }.should raise_error(Smsim::GatewayError)
     end
 
     it 'should return SmsReply with all fields initialized' do

@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 describe Smsim::DeliveryNotificationsParser do
-  let(:parser) { Smsim::DeliveryNotificationsParser }
+  let(:gateway){ Smsim::Gateway.new(:username => 'alex', :password => 'pass') }
+  let(:parser){ gateway.delivery_notification_parser }
 
   describe '#http_push' do
     let(:http_params) { {'Status' => '1', 'CustomerMessageId' => 'a1', 'SegmentsNumber' => '3', 'PhoneNumber' => '0545123456', 'NotificationDate' => "09/03/2012 23:29:12"} }
@@ -11,11 +12,11 @@ describe Smsim::DeliveryNotificationsParser do
       ['PhoneNumber', 'Status', 'CustomerMessageId', 'SegmentsNumber'].each do |p|
         params = http_params.clone
         params.delete(p)
-        lambda { parser.http_push(params) }.should raise_error(Smsim::Errors::GatewayError)
+        lambda { parser.http_push(params) }.should raise_error(Smsim::GatewayError)
       end
 
-      lambda { parser.http_push(http_params.update('Status' => 'asdf')) }.should raise_error(Smsim::Errors::GatewayError)
-      lambda { parser.http_push(http_params.update('SegmentsNumber' => 'asdf')) }.should raise_error(Smsim::Errors::GatewayError)
+      lambda { parser.http_push(http_params.update('Status' => 'asdf')) }.should raise_error(Smsim::GatewayError)
+      lambda { parser.http_push(http_params.update('SegmentsNumber' => 'asdf')) }.should raise_error(Smsim::GatewayError)
     end
 
     it 'should return DeliveryNotification with all fields initialized' do
@@ -32,19 +33,17 @@ describe Smsim::DeliveryNotificationsParser do
 
     it 'should be delivered when status is 2' do
       http_params.update('Status' => '2')
-      notification.should be_delivered
-      notification.should_not be_not_delivered
-      notification.should_not be_blocked
+      notification.delivery_status.should == :delivered
     end
 
     it 'should be not delivered when status is -2' do
       http_params.update('Status' => '-2')
-      notification.should_not be_delivered
+      notification.delivery_status.should == :failed
     end
 
     it 'should be blocked when status is -4' do
       http_params.update('Status' => '-4')
-      notification.should_not be_delivered
+      notification.delivery_status.should == :failed
     end
   end
 

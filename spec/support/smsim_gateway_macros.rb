@@ -53,16 +53,16 @@ class XmlResponseStubs
       wrap_in_soap_envelope_response(doc.root)
     end
 
-    def stub_request_with_sms_send_response(example, options = {})
+    def stub_request_with_sms_send_response(example, send_sms_url, options = {})
       options = {:http_code => 200}.update(options)
-      example.stub_request(:any, Smsim::config.urls[:send_sms]).to_return(:status => options.delete(:http_code), :body => XmlResponseStubs.sms_send_response(options))
+      example.stub_request(:any, send_sms_url).to_return(:status => options.delete(:http_code), :body => XmlResponseStubs.sms_send_response(options))
     end
 
-    def stub_request_with_pull_notifications_response(example, options = {})
+    def stub_request_with_pull_notifications_response(example, pull_url, options = {})
       options = {:http_code => 200}.update(options)
       http_code = options.delete(:http_code)
-      example.stub_request(:get, Smsim::config.urls[:delivery_notifications_and_sms_replies_report_pull]).to_return(:status => http_code, :body => FileMacros.load_xml_file('ClientServices.asmx.wsdl.xml'))
-      example.stub_request(:post, Smsim::config.urls[:delivery_notifications_and_sms_replies_report_pull].gsub('?WSDL', '')).to_return(:status => http_code, :body => XmlResponseStubs.delivery_notifications_and_sms_replies_report_pull_response(options))
+      example.stub_request(:get, pull_url).to_return(:status => http_code, :body => FileMacros.load_xml_file('ClientServices.asmx.wsdl.xml'))
+      example.stub_request(:post, pull_url.gsub('?WSDL', '')).to_return(:status => http_code, :body => XmlResponseStubs.delivery_notifications_and_sms_replies_report_pull_response(options))
     end
 
     def sms_reply_http_xml_string(values_hash = {})

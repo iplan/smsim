@@ -4,7 +4,7 @@ require 'logging'
 module Smsim
 
   # this class sends smses and parses repsones
-  class Sender
+  class SmsSender
     include ::HTTParty
     attr_reader :logger, :gateway
 
@@ -21,6 +21,10 @@ module Smsim
     def send_sms(message_text, phones, options = {})
       raise ArgumentError.new("Text must be at least 1 character long") if message_text.blank?
       raise ArgumentError.new("No phones were given") if phones.blank?
+      raise ArgumentError.new("Either :sender_name or :sender_number attribute required") if options[:sender_name].blank? && options[:sender_number].blank?
+      raise ArgumentError.new("Reply to number must be cellular or land line phone with 972 country code, was: #{options[:sender_number]}") if options[:sender_number].present? && !PhoneNumberUtils.valid_sender_number?(options[:sender_number])
+      raise ArgumentError.new("Sender name must be max 11 latin chars") if options[:sender_name].present? && !(options[:sender_name] =~ /^[a-z]{3,11}$/i)
+
       phones = [phones] unless phones.is_a?(Array)
       # check that phones are in valid cellular format
       for p in phones
@@ -37,9 +41,11 @@ module Smsim
       xml = http_response.parsed_response
       response = parse_response_xml(http_response)
       response.message_id = message_id
+      response.sender_name = options[:sender_name]
+      response.sender_number = options[:sender_number]
       logger.debug "#send_sms - parsed response: #{response.inspect}"
       if response.status != 1
-        raise Smsim::Errors::GatewayError.new(Smsim::Errors::GatewayError.map_send_sms_xml_response_status(response.status), "Sms send failed (status #{response.status}): #{response.description}", :xml_response => xml, :parsed_response => response)
+        raise Smsim::GatewayError.new(Smsim::GatewayError.map_send_sms_xml_response_status(response.status), "Sms send failed (status #{response.status}): #{response.description}", :xml_response => xml, :parsed_response => response)
       end
       response
     end
@@ -59,12 +65,12 @@ module Smsim
           recipients.PhoneNumber phones.join(';')
         end
         root.Settings do |settings|
-          sender_name = options[:sender_name] || @gateway.sender_name
+          sender_name = options[:sender_name]
           settings.SenderName sender_name if sender_name.present?
-          sender_number = options[:sender_number] || @gateway.sender_number
+          sender_number = options[:sender_number]
           settings.SenderNumber PhoneNumberUtils.without_country_code(sender_number)
           settings.CustomerMessageId message_id
-          settings.DeliveryNotificationUrl @gateway.delivery_notification_url if @gateway.delivery_notification_url.present?
+          settings.DeliveryNotificationUrl options[:delivery_notification_url] if options[:delivery_notification_url].present?
         end
       end
     end
@@ -75,15 +81,15 @@ module Smsim
           #all good do not raise anything
           true
         when 400
-          raise Smsim::Errors::GatewayError.new(400, "Bad request to #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
+          raise Smsim::GatewayError.new(400, "Bad request to #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
         when 401
-          raise Smsim::Errors::GatewayError.new(401, "Unauthorized: #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
+          raise Smsim::GatewayError.new(401, "Unauthorized: #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
         when 403
-          raise Smsim::Errors::GatewayError.new(403, "Forbidden: #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
+          raise Smsim::GatewayError.new(403, "Forbidden: #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
         when 404
-          raise Smsim::Errors::GatewayError.new(404, "Url not found #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
+          raise Smsim::GatewayError.new(404, "Url not found #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
         when 500...600
-          raise Smsim::Errors::GatewayError.new(450, "Error on server at #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
+          raise Smsim::GatewayError.new(450, "Error on server at #{http_response.request.last_uri} \n#{http_response.parsed_response}", :http_response => http_response)
       end
     end
 
@@ -96,7 +102,7 @@ module Smsim
           :description => doc.at_css('Result Description').text,
         })
       rescue Exception => e
-        raise Smsim::Errors::GatewayError.new(250, e.message)
+        raise Smsim::GatewayError.new(250, e.message)
       end
     end
 

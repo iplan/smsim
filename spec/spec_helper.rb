@@ -3,6 +3,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 require 'smsim'
 require 'nokogiri'
+require 'ostruct'
 require 'webmock/rspec'
 
 # Requires supporting files with custom matchers and macros, etc,
