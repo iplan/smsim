@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "smsim"
-  s.version = "0.1.2"
+  s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alex Tkachev"]
-  s.date = "2012-06-03"
+  s.date = "2012-09-17"
   s.description = "Ruby api for sms service provider: Smsim"
   s.email = "tkachev.alex@gmail.com"
   s.extra_rdoc_files = [
@@ -28,12 +28,12 @@ Gem::Specification.new do |s|
     "lib/smsim.rb",
     "lib/smsim/config.rb",
     "lib/smsim/delivery_notifications_parser.rb",
-    "lib/smsim/errors/gateway_error.rb",
     "lib/smsim/gateway.rb",
+    "lib/smsim/gateway_error.rb",
     "lib/smsim/phone_number_utils.rb",
     "lib/smsim/report_puller.rb",
-    "lib/smsim/sender.rb",
     "lib/smsim/sms_replies_parser.rb",
+    "lib/smsim/sms_sender.rb",
     "smsim.gemspec",
     "spec/resources/ClientServices.asmx.wsdl.xml",
     "spec/resources/EnvelopeResponse.soap.xml",
@@ -54,7 +54,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/alextk/smsim"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.17"
+  s.rubygems_version = "1.8.24"
   s.summary = "Ruby api for sms service provider: Smsim"
 
   if s.respond_to? :specification_version then
@@ -73,8 +73,8 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rspec>, ["= 2.7.0"])
       s.add_development_dependency(%q<webmock>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, ["~> 3.12"])
-      s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
-      s.add_development_dependency(%q<jeweler>, ["~> 1.8.3"])
+      s.add_development_dependency(%q<bundler>, [">= 0"])
+      s.add_development_dependency(%q<jeweler>, ["~> 1.8.4"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
     else
       s.add_dependency(%q<httparty>, [">= 0"])
@@ -89,8 +89,8 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rspec>, ["= 2.7.0"])
       s.add_dependency(%q<webmock>, [">= 0"])
       s.add_dependency(%q<rdoc>, ["~> 3.12"])
-      s.add_dependency(%q<bundler>, ["~> 1.0.0"])
-      s.add_dependency(%q<jeweler>, ["~> 1.8.3"])
+      s.add_dependency(%q<bundler>, [">= 0"])
+      s.add_dependency(%q<jeweler>, ["~> 1.8.4"])
       s.add_dependency(%q<rcov>, [">= 0"])
     end
   else
@@ -106,8 +106,8 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rspec>, ["= 2.7.0"])
     s.add_dependency(%q<webmock>, [">= 0"])
     s.add_dependency(%q<rdoc>, ["~> 3.12"])
-    s.add_dependency(%q<bundler>, ["~> 1.0.0"])
-    s.add_dependency(%q<jeweler>, ["~> 1.8.3"])
+    s.add_dependency(%q<bundler>, [">= 0"])
+    s.add_dependency(%q<jeweler>, ["~> 1.8.4"])
     s.add_dependency(%q<rcov>, [">= 0"])
   end
 end
