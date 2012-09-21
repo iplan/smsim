@@ -67,8 +67,8 @@ module Smsim
         root.Settings do |settings|
           sender_name = options[:sender_name]
           settings.SenderName sender_name if sender_name.present?
-          sender_number = options[:sender_number]
-          settings.SenderNumber PhoneNumberUtils.without_country_code(sender_number) if sender_number.present?
+          sender_number = options[:sender_number] || '0000'
+          settings.SenderNumber PhoneNumberUtils.without_country_code(sender_number)
           settings.CustomerMessageId message_id
           settings.DeliveryNotificationUrl options[:delivery_notification_url] if options[:delivery_notification_url].present?
         end
