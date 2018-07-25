@@ -22,8 +22,8 @@ describe Smsim::SmsSender do
     end
 
     it 'should raise error if sender_number is not valid cellular phone' do
-      lambda{ sender.send_sms(message, phone, :sender_number => '1234') }.should raise_error(ArgumentError)
-      lambda{ sender.send_sms(message, phone, :sender_number => '0545290862') }.should raise_error(ArgumentError)
+      lambda{ sender.send_sms(message, phone, :sender_number => '123') }.should raise_error(ArgumentError)
+      lambda{ sender.send_sms(message, phone, :sender_number => '0543456789111315') }.should raise_error(ArgumentError)
     end
 
   end
@@ -81,7 +81,7 @@ describe Smsim::SmsSender do
 
     it 'should not raise error url if response code is ok (200 http status)' do
       stub_request(:any, request_uri).to_return(:status => 200, :body => 'response body')
-      sender.verify_http_response_code(sender.class.post(request_uri)).should be_true
+      sender.verify_http_response_code(sender.class.post(request_uri)).should be_truthy
     end
   end
 
